@@ -19,20 +19,51 @@ export default function PublicLayout({
           >
             Coaching<span className="text-primary">.</span>
           </Link>
-          <nav className="flex items-center gap-3 text-sm">
+          <nav className="flex items-center gap-2 text-sm sm:gap-3">
+            <Link
+              href="/packages"
+              className="hidden rounded-md px-3 py-1.5 text-muted-foreground hover:text-foreground sm:inline-flex"
+            >
+              {locale === "ar" ? "الباقات" : "Packages"}
+            </Link>
+            <Link
+              href="/apply"
+              className="hidden rounded-md px-3 py-1.5 text-muted-foreground hover:text-foreground sm:inline-flex"
+            >
+              {locale === "ar" ? "قدّم" : "Apply"}
+            </Link>
             <LocaleSwitcher current={locale} />
             <Link
               href="/login"
               className="rounded-md bg-primary px-3 py-1.5 font-medium text-primary-foreground"
             >
-              Log in
+              {locale === "ar" ? "دخول" : "Log in"}
             </Link>
           </nav>
         </div>
       </header>
       <main>{children}</main>
-      <footer className="border-t border-border/60 py-8 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} Coaching Platform
+      <footer className="border-t border-border/60 py-8">
+        <div className="container flex flex-col items-center justify-between gap-3 text-sm text-muted-foreground sm:flex-row">
+          <p>© {new Date().getFullYear()} Coaching Platform</p>
+          <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            <Link href="/packages" className="hover:text-foreground">
+              {locale === "ar" ? "الباقات" : "Packages"}
+            </Link>
+            <Link href="/apply" className="hover:text-foreground">
+              {locale === "ar" ? "قدّم" : "Apply"}
+            </Link>
+            <Link href="/privacy" className="hover:text-foreground">
+              {locale === "ar" ? "الخصوصية" : "Privacy"}
+            </Link>
+            <Link href="/terms" className="hover:text-foreground">
+              {locale === "ar" ? "الشروط" : "Terms"}
+            </Link>
+            <Link href="/refund-policy" className="hover:text-foreground">
+              {locale === "ar" ? "سياسة الاسترداد" : "Refund policy"}
+            </Link>
+          </nav>
+        </div>
       </footer>
     </div>
   );

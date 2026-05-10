@@ -23,6 +23,28 @@ export type TrainingGoal =
   | "athletic_performance";
 export type NutritionMode = "fixed" | "flexible";
 export type WorkoutDoneStatus = "yes" | "partial" | "no";
+export type BillingPeriod =
+  | "monthly"
+  | "quarterly"
+  | "biannual"
+  | "yearly"
+  | "one_time";
+export type ApplicationStatus =
+  | "new"
+  | "contacted"
+  | "in_review"
+  | "accepted"
+  | "rejected"
+  | "archived";
+export type ActivityLevel =
+  | "sedentary"
+  | "light"
+  | "moderate"
+  | "active"
+  | "very_active";
+export type TrainingLocation = "home" | "gym" | "both";
+export type ContactMethod = "whatsapp" | "phone" | "email";
+export type Gender = "male" | "female" | "other";
 
 export interface Profile {
   id: string;
@@ -214,6 +236,76 @@ export interface DailyCheckin {
   created_at: string;
 }
 
+export interface Package {
+  id: string;
+  slug: string;
+  name_en: string;
+  name_ar: string;
+  description_en: string;
+  description_ar: string;
+  price: number;
+  currency: string;
+  billing_period: BillingPeriod;
+  features_en: string[];
+  features_ar: string[];
+  cta_label_en: string | null;
+  cta_label_ar: string | null;
+  is_featured: boolean;
+  is_active: boolean;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CoachingApplication {
+  id: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  country: string | null;
+  city: string | null;
+  preferred_contact: ContactMethod;
+  best_contact_time: string | null;
+  age: number | null;
+  gender: Gender | null;
+  height_cm: number | null;
+  weight_kg: number | null;
+  body_fat_percent: number | null;
+  goal: TrainingGoal | null;
+  target_weight_kg: number | null;
+  target_date: string | null;
+  motivation_text: string | null;
+  experience_level: ExperienceLevel | null;
+  previous_coaching: boolean;
+  previous_results_text: string | null;
+  training_days_per_week: number | null;
+  training_location: TrainingLocation | null;
+  available_equipment_text: string | null;
+  preferred_training_time: string | null;
+  injuries_or_conditions: string | null;
+  medications: string | null;
+  allergies: string | null;
+  surgeries_text: string | null;
+  dietary_restrictions: string | null;
+  foods_disliked: string | null;
+  current_diet_summary: string | null;
+  water_intake_liters: number | null;
+  occupation: string | null;
+  daily_activity_level: ActivityLevel | null;
+  sleep_hours_avg: number | null;
+  stress_level: number | null;
+  smokes: boolean;
+  package_id: string | null;
+  notes: string | null;
+  locale: string;
+  status: ApplicationStatus;
+  admin_notes: string | null;
+  contacted_at: string | null;
+  converted_client_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 type TableShape<R, I, U> = {
   Row: R;
   Insert: I;
@@ -322,6 +414,17 @@ export interface Database {
           Pick<DailyCheckin, "client_id" | "workout_done">,
         Partial<DailyCheckin>
       >;
+      packages: TableShape<
+        Package,
+        Partial<Package> & Pick<Package, "slug" | "name_en" | "name_ar">,
+        Partial<Package>
+      >;
+      coaching_applications: TableShape<
+        CoachingApplication,
+        Partial<CoachingApplication> &
+          Pick<CoachingApplication, "full_name" | "email" | "phone">,
+        Partial<CoachingApplication>
+      >;
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -331,6 +434,12 @@ export interface Database {
       training_goal: TrainingGoal;
       nutrition_mode: NutritionMode;
       workout_done_status: WorkoutDoneStatus;
+      billing_period: BillingPeriod;
+      application_status: ApplicationStatus;
+      activity_level: ActivityLevel;
+      training_location: TrainingLocation;
+      contact_method: ContactMethod;
+      gender: Gender;
     };
     CompositeTypes: Record<string, never>;
   };

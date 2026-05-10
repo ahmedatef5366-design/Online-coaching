@@ -4,6 +4,7 @@ import {
   Apple,
   Award,
   Camera,
+  CheckCircle2,
   Dumbbell,
   Heart,
   MessageCircle,
@@ -19,6 +20,14 @@ import { loadAllSections } from "@/lib/cms/loader";
 import { pickLocaleText } from "@/lib/cms/sections";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
 import { Reveal } from "@/components/ui/reveal";
+import { listActivePackages } from "@/lib/packages/queries";
+import { formatBillingPeriod } from "@/lib/packages/format";
+import { JsonLd } from "@/components/seo/json-ld";
+import {
+  SITE_DEFAULT_DESCRIPTION,
+  SITE_NAME,
+  siteUrl,
+} from "@/lib/seo/site";
 import type {
   CtaFooterContent,
   FeaturesContent,
@@ -52,7 +61,10 @@ function resolveIcon(name: string | undefined): LucideIcon {
 
 export default async function LandingPage() {
   const locale = readLocaleFromCookie();
-  const sections = await loadAllSections();
+  const [sections, packages] = await Promise.all([
+    loadAllSections(),
+    listActivePackages(),
+  ]);
 
   // Build a key → published-content lookup for ergonomic access below.
   // Sections that are unpublished are skipped here so they don't render.
@@ -69,10 +81,33 @@ export default async function LandingPage() {
     | TestimonialsContent
     | undefined;
   const pricing = published.get("pricing") as PricingContent | undefined;
+  const pricingPublished = sections.find((s) => s.key === "pricing")
+    ?.isPublished;
   const ctaFooter = published.get("cta_footer") as CtaFooterContent | undefined;
+
+  // Top-level Organization + Service structured data so search engines
+  // understand who runs the site and what we do.
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SITE_NAME,
+    url: siteUrl(),
+    description: SITE_DEFAULT_DESCRIPTION,
+  } as const;
+  const serviceJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: "Online fitness & nutrition coaching",
+    serviceType: "Online personal coaching",
+    provider: { "@type": "Organization", name: SITE_NAME, url: siteUrl() },
+    areaServed: "Worldwide",
+    description: SITE_DEFAULT_DESCRIPTION,
+  } as const;
 
   return (
     <div className="relative">
+      <JsonLd data={orgJsonLd} />
+      <JsonLd data={serviceJsonLd} />
       {/* Hero --------------------------------------------------------------- */}
       {hero && (
         <section className="relative overflow-hidden">
@@ -112,7 +147,7 @@ export default async function LandingPage() {
             </Reveal>
             <Reveal delay={0.15} className="flex flex-wrap items-center gap-3">
               <Link
-                href="/login"
+                href="/apply"
                 className="rounded-md bg-primary px-6 py-3 text-base font-semibold text-primary-foreground transition-all hover:scale-[1.02] hover:bg-primary/90"
               >
                 {pickLocaleText(hero, "cta_text", locale) ||
@@ -265,51 +300,156 @@ export default async function LandingPage() {
       )}
 
       {/* Pricing ------------------------------------------------------------ */}
-      {pricing && pricing.tiers.length > 0 && (
-        <section className="border-t border-border/60 bg-card/30 py-16">
-          <div className="container">
-            <h2 className="mb-10 font-display text-3xl font-bold md:text-4xl">
-              {locale === "ar"
-                ? "اختر الخطة المناسبة"
-                : "Pick the plan that fits"}
-            </h2>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {pricing.tiers.map((tier, i) => {
-                const name = pickLocaleText(tier, "name", locale);
-                const featuresText = pickLocaleText(tier, "features", locale);
-                return (
-                  <article
-                    key={`${name}-${i}`}
-                    className="flex flex-col gap-4 rounded-xl border border-border bg-background/40 p-6"
-                  >
-                    <h3 className="text-lg font-semibold">{name}</h3>
-                    <p className="font-display text-3xl font-bold">
-                      {tier.price}
-                      <span className="ml-1 text-sm font-normal text-muted-foreground">
-                        {tier.currency}
-                      </span>
-                    </p>
-                    <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
-                      {featuresText
-                        .split("\n")
-                        .filter(Boolean)
-                        .map((line, k) => (
-                          <li key={k}>• {line}</li>
-                        ))}
-                    </ul>
-                    <Link
-                      href="/login"
-                      className="mt-2 rounded-md bg-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground"
+      {/*
+       * Sourced from the `packages` admin table when at least one is active.
+       * Falls back to the legacy CMS pricing tiers for backward compat. The
+       * section can still be hidden via the CMS publish toggle.
+       */}
+      {pricingPublished !== false &&
+        (packages.length > 0 ? (
+          <section
+            id="packages"
+            className="border-t border-border/60 bg-card/30 py-16"
+          >
+            <div className="container">
+              <div className="mb-10 flex flex-wrap items-end justify-between gap-3">
+                <h2 className="font-display text-3xl font-bold md:text-4xl">
+                  {locale === "ar"
+                    ? "اختر الباقة المناسبة"
+                    : "Pick the plan that fits"}
+                </h2>
+                <Link
+                  href="/packages"
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                >
+                  {locale === "ar" ? "عرض كل التفاصيل ←" : "See full details →"}
+                </Link>
+              </div>
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {packages.slice(0, 3).map((p, i) => {
+                  const name = locale === "ar" ? p.name_ar : p.name_en;
+                  const description =
+                    locale === "ar" ? p.description_ar : p.description_en;
+                  const featureList =
+                    (locale === "ar" ? p.features_ar : p.features_en) ?? [];
+                  const ctaLabel =
+                    (locale === "ar" ? p.cta_label_ar : p.cta_label_en) ||
+                    (locale === "ar" ? "قدّم دلوقتي" : "Apply now");
+                  return (
+                    <Reveal
+                      key={p.id}
+                      delay={i * 0.06}
+                      className={
+                        "relative flex flex-col gap-4 rounded-2xl border bg-background/40 p-6 " +
+                        (p.is_featured
+                          ? "border-primary/60 ring-1 ring-primary/40"
+                          : "border-border")
+                      }
                     >
-                      {locale === "ar" ? "ابدأ" : "Get started"}
-                    </Link>
-                  </article>
-                );
-              })}
+                      {p.is_featured && (
+                        <span className="absolute -top-3 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary-foreground">
+                          <Sparkles className="h-3 w-3" />
+                          {locale === "ar" ? "الأكثر طلباً" : "Most popular"}
+                        </span>
+                      )}
+                      <div>
+                        <h3 className="text-lg font-semibold">{name}</h3>
+                        {description && (
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            {description}
+                          </p>
+                        )}
+                      </div>
+                      <p className="font-display text-3xl font-bold">
+                        {p.price > 0
+                          ? p.price
+                          : locale === "ar"
+                            ? "مخصصة"
+                            : "Custom"}
+                        {p.price > 0 && (
+                          <span className="ms-1 text-sm font-normal text-muted-foreground">
+                            {p.currency}
+                          </span>
+                        )}
+                        <span className="ms-2 text-xs font-normal text-muted-foreground">
+                          {formatBillingPeriod(p.billing_period, locale)}
+                        </span>
+                      </p>
+                      {featureList.length > 0 && (
+                        <ul className="flex flex-col gap-2 text-sm">
+                          {featureList.slice(0, 6).map((f, k) => (
+                            <li key={k} className="flex items-start gap-2">
+                              <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+                              <span>{f}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <Link
+                        href={`/apply?package_id=${p.id}`}
+                        className={
+                          "mt-auto rounded-md px-4 py-2.5 text-center text-sm font-semibold transition-colors " +
+                          (p.is_featured
+                            ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                            : "border border-border bg-background hover:bg-accent/10")
+                        }
+                      >
+                        {ctaLabel}
+                      </Link>
+                    </Reveal>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        </section>
-      )}
+          </section>
+        ) : (
+          pricing &&
+          pricing.tiers.length > 0 && (
+            <section className="border-t border-border/60 bg-card/30 py-16">
+              <div className="container">
+                <h2 className="mb-10 font-display text-3xl font-bold md:text-4xl">
+                  {locale === "ar"
+                    ? "اختر الخطة المناسبة"
+                    : "Pick the plan that fits"}
+                </h2>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {pricing.tiers.map((tier, i) => {
+                    const name = pickLocaleText(tier, "name", locale);
+                    const featuresText = pickLocaleText(tier, "features", locale);
+                    return (
+                      <article
+                        key={`${name}-${i}`}
+                        className="flex flex-col gap-4 rounded-xl border border-border bg-background/40 p-6"
+                      >
+                        <h3 className="text-lg font-semibold">{name}</h3>
+                        <p className="font-display text-3xl font-bold">
+                          {tier.price}
+                          <span className="ml-1 text-sm font-normal text-muted-foreground">
+                            {tier.currency}
+                          </span>
+                        </p>
+                        <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
+                          {featuresText
+                            .split("\n")
+                            .filter(Boolean)
+                            .map((line, k) => (
+                              <li key={k}>• {line}</li>
+                            ))}
+                        </ul>
+                        <Link
+                          href="/apply"
+                          className="mt-2 rounded-md bg-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground"
+                        >
+                          {locale === "ar" ? "قدّم دلوقتي" : "Apply now"}
+                        </Link>
+                      </article>
+                    );
+                  })}
+                </div>
+              </div>
+            </section>
+          )
+        ))}
 
       {/* CTA Footer --------------------------------------------------------- */}
       {ctaFooter && (
@@ -322,10 +462,11 @@ export default async function LandingPage() {
               {pickLocaleText(ctaFooter, "subheadline", locale)}
             </p>
             <Link
-              href="/login"
+              href="/apply"
               className="rounded-md bg-primary px-6 py-3 font-semibold text-primary-foreground"
             >
-              {pickLocaleText(ctaFooter, "cta_text", locale) || "Sign up now"}
+              {pickLocaleText(ctaFooter, "cta_text", locale) ||
+                (locale === "ar" ? "قدّم دلوقتي" : "Apply now")}
             </Link>
           </div>
         </section>
