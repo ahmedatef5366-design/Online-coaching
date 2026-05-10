@@ -31,12 +31,12 @@ Copy the template and fill in your Supabase credentials:
 cp .env.local.example .env.local
 ```
 
-| Var                              | Where to find it                                 |
-| -------------------------------- | ------------------------------------------------ |
-| `NEXT_PUBLIC_SUPABASE_URL`       | Supabase dashboard → Settings → API → Project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY`  | Supabase dashboard → Settings → API → anon key    |
-| `SUPABASE_SERVICE_ROLE_KEY`      | Supabase dashboard → Settings → API → service_role |
-| `NEXT_PUBLIC_SITE_URL`           | Public origin used for OAuth/email redirects     |
+| Var                                                         | Where to find it                                                       |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`                                  | Supabase dashboard → Settings → API → Project URL                      |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` *(or `…_ANON_KEY`)*  | Browser-safe key (`sb_publishable_*` for modern projects, JWT `anon` for legacy) |
+| `SUPABASE_SERVICE_ROLE_KEY`                                 | Server-only secret key (`sb_secret_*` or JWT `service_role`) — bypasses RLS |
+| `NEXT_PUBLIC_SITE_URL`                                      | Public origin used for OAuth/email redirects                           |
 
 ### 3. Apply the database schema
 
