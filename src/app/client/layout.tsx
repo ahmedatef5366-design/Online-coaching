@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ClientBottomNav } from "@/components/client/bottom-nav";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { MessagesLink } from "@/components/messages/messages-link";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
 import type { UserRole } from "@/types/database";
 
@@ -42,6 +43,7 @@ export default async function ClientLayout({
           <span className="hidden text-sm text-muted-foreground sm:inline">
             {profile?.full_name ?? profile?.email}
           </span>
+          <MessagesLink href="/client/messages" locale={locale} />
           <LocaleSwitcher current={locale} />
           <LogoutButton />
         </div>

@@ -101,6 +101,15 @@ export interface Exercise {
   created_at: string;
 }
 
+export interface Message {
+  id: string;
+  client_id: string;
+  sender_id: string;
+  body: string;
+  created_at: string;
+  read_at: string | null;
+}
+
 export interface WorkoutLog {
   id: string;
   client_id: string;
