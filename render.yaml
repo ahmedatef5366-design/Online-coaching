@@ -11,7 +11,10 @@ services:
     runtime: node
     region: frankfurt
     plan: free
-    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
+    # Bypass corepack: Node 20.18's bundled corepack ships an outdated pnpm
+    # signing key and refuses to fetch the latest stable pnpm. Install pnpm
+    # globally via npm instead — version pinned to match the lockfile.
+    buildCommand: npm install -g pnpm@9.15.1 && pnpm install --frozen-lockfile && pnpm build
     startCommand: pnpm start
     healthCheckPath: /
     autoDeploy: true
