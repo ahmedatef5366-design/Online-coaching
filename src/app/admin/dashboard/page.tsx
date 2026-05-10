@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { ArrowRight, FileText } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import {
   Card,
@@ -68,13 +70,29 @@ export default async function AdminDashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Phase 1 — what&apos;s live</CardTitle>
+          <CardTitle className="text-lg">Quick actions</CardTitle>
           <CardDescription>
-            Foundation only. Authentication, role-based routing, and CMS-backed
-            landing data are wired up. Feature surfaces (workouts, nutrition,
-            progress, check-in, monitoring) ship in Phases 3–5.
+            Edit your landing page content or manage clients.
           </CardDescription>
         </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          <Link
+            href="/admin/site-content"
+            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+          >
+            <FileText className="h-4 w-4" />
+            Edit landing page
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+          <Link
+            href="/"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-card/70"
+          >
+            View live site
+          </Link>
+        </CardContent>
       </Card>
     </div>
   );
