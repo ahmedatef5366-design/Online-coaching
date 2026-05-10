@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -64,10 +65,15 @@ export function CheckinForm({ locale, initial }: Props) {
                 client_note: String(fd.get("client_note") ?? ""),
               });
               if (!result.ok) {
-                setError(result.error ?? "Could not save.");
+                const msg = result.error ?? "Could not save.";
+                setError(msg);
+                toast.error(msg);
                 return;
               }
               setSaved(true);
+              toast.success(
+                locale === "ar" ? "تم حفظ التشيك إن" : "Check-in saved",
+              );
               router.refresh();
             });
           }}

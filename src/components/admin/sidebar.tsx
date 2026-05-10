@@ -7,6 +7,7 @@ import {
   Users,
   FileText,
   Apple,
+  BarChart3,
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -14,6 +15,7 @@ import { cn } from "@/lib/utils";
 const ITEMS = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/clients", label: "Clients", icon: Users },
+  { href: "/admin/reports", label: "Reports", icon: BarChart3 },
   { href: "/admin/nutrition", label: "Nutrition", icon: Apple },
   { href: "/admin/site-content", label: "Site Content", icon: FileText },
   { href: "/admin/settings", label: "Settings", icon: Settings },
