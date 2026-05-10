@@ -15,7 +15,8 @@
     "test:coverage": "vitest run --coverage",
     "e2e": "playwright test",
     "e2e:install": "playwright install --with-deps chromium",
-    "db:bootstrap-admin": "tsx scripts/bootstrap-admin.ts"
+    "db:bootstrap-admin": "tsx scripts/bootstrap-admin.ts",
+    "check-env": "tsx scripts/check-env.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -61,5 +62,9 @@
       "postcss@<8.5.10": ">=8.5.10",
       "glob@>=10.2.0 <10.5.0": ">=10.5.0"
     }
+  },
+  "engines": {
+    "node": ">=20.18.0 <21",
+    "pnpm": ">=9.15.0"
   }
 }
