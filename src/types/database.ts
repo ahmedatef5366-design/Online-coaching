@@ -110,6 +110,99 @@ export interface WorkoutLog {
   created_at: string;
 }
 
+export interface NutritionPlan {
+  id: string;
+  client_id: string;
+  mode: NutritionMode;
+  calories_target: number | null;
+  protein_target: number | null;
+  carbs_target: number | null;
+  fat_target: number | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MealFoodItem {
+  name: string;
+  grams: number;
+  kcal: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
+export interface Meal {
+  id: string;
+  plan_id: string;
+  meal_type: string;
+  food_items: MealFoodItem[];
+  display_order: number;
+}
+
+export interface FoodLog {
+  id: string;
+  client_id: string;
+  food_id: string;
+  log_date: string;
+  weight_grams: number;
+  calculated_calories: number;
+  calculated_protein: number;
+  calculated_carbs: number;
+  calculated_fat: number;
+  meal_type: string | null;
+  created_at: string;
+}
+
+export interface BodyMeasurement {
+  id: string;
+  client_id: string;
+  measured_on: string;
+  weight_kg: number | null;
+  waist_cm: number | null;
+  chest_cm: number | null;
+  shoulders_cm: number | null;
+  hips_cm: number | null;
+  left_arm_cm: number | null;
+  right_arm_cm: number | null;
+  left_thigh_cm: number | null;
+  right_thigh_cm: number | null;
+  body_fat_percent: number | null;
+  created_at: string;
+}
+
+export interface WeightLogRow {
+  id: string;
+  client_id: string;
+  log_date: string;
+  weight_kg: number;
+  created_at: string;
+}
+
+export interface ProgressPhoto {
+  id: string;
+  client_id: string;
+  taken_on: string;
+  storage_path: string;
+  note: string | null;
+  created_at: string;
+}
+
+export interface DailyCheckin {
+  id: string;
+  client_id: string;
+  checkin_date: string;
+  workout_done: WorkoutDoneStatus;
+  workout_sets_done: number | null;
+  diet_compliance: number | null;
+  cardio_done: boolean;
+  cardio_minutes: number | null;
+  sleep_quality: number | null;
+  sleep_hours: number | null;
+  client_note: string | null;
+  created_at: string;
+}
+
 type TableShape<R, I, U> = {
   Row: R;
   Insert: I;
@@ -170,6 +263,53 @@ export interface Database {
         Partial<WorkoutLog> &
           Pick<WorkoutLog, "client_id" | "exercise_id" | "set_number">,
         Partial<WorkoutLog>
+      >;
+      nutrition_plans: TableShape<
+        NutritionPlan,
+        Partial<NutritionPlan> & Pick<NutritionPlan, "client_id" | "mode">,
+        Partial<NutritionPlan>
+      >;
+      meals: TableShape<
+        Meal,
+        Partial<Meal> & Pick<Meal, "plan_id" | "meal_type">,
+        Partial<Meal>
+      >;
+      food_logs: TableShape<
+        FoodLog,
+        Partial<FoodLog> &
+          Pick<
+            FoodLog,
+            | "client_id"
+            | "food_id"
+            | "weight_grams"
+            | "calculated_calories"
+            | "calculated_protein"
+            | "calculated_carbs"
+            | "calculated_fat"
+          >,
+        Partial<FoodLog>
+      >;
+      body_measurements: TableShape<
+        BodyMeasurement,
+        Partial<BodyMeasurement> & Pick<BodyMeasurement, "client_id">,
+        Partial<BodyMeasurement>
+      >;
+      weight_logs: TableShape<
+        WeightLogRow,
+        Partial<WeightLogRow> & Pick<WeightLogRow, "client_id" | "weight_kg">,
+        Partial<WeightLogRow>
+      >;
+      progress_photos: TableShape<
+        ProgressPhoto,
+        Partial<ProgressPhoto> &
+          Pick<ProgressPhoto, "client_id" | "storage_path">,
+        Partial<ProgressPhoto>
+      >;
+      daily_checkins: TableShape<
+        DailyCheckin,
+        Partial<DailyCheckin> &
+          Pick<DailyCheckin, "client_id" | "workout_done">,
+        Partial<DailyCheckin>
       >;
     };
     Views: Record<string, never>;
