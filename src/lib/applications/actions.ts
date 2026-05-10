@@ -5,6 +5,10 @@ import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { assertAdmin } from "@/lib/auth/admin-guard";
 import { checkRateLimit, rateLimitMessage } from "@/lib/security/rate-limit";
+import {
+  sendApplicationAcceptedEmail,
+  sendApplicationReceivedEmail,
+} from "@/lib/email";
 import type {
   ActivityLevel,
   ApplicationStatus,
@@ -204,6 +208,17 @@ export async function submitCoachingApplication(
   }
 
   revalidatePath("/admin/applications");
+
+  // Best-effort confirmation email. Failure here must not block the
+  // submission — the row is already saved and the admin will follow up.
+  void sendApplicationReceivedEmail({
+    to: payload.email,
+    fullName: payload.full_name,
+    locale: payload.locale === "ar" ? "ar" : "en",
+  }).catch((err) => {
+    console.error("sendApplicationReceivedEmail failed", err);
+  });
+
   return { ok: true, data: { id: (data as { id: string }).id } };
 }
 
@@ -226,6 +241,25 @@ export async function updateApplicationStatus(
     .update(update)
     .eq("id", id);
   if (error) return { ok: false, error: error.message };
+
+  // When an admin moves an application to "accepted", trigger the welcome
+  // email. Read back the row first to get the applicant's name + locale.
+  if (status === "accepted") {
+    const { data: row } = await supabase
+      .from("coaching_applications")
+      .select("full_name, email, locale")
+      .eq("id", id)
+      .maybeSingle();
+    if (row?.email) {
+      void sendApplicationAcceptedEmail({
+        to: row.email,
+        fullName: row.full_name ?? "",
+        locale: row.locale === "ar" ? "ar" : "en",
+      }).catch((err) => {
+        console.error("sendApplicationAcceptedEmail failed", err);
+      });
+    }
+  }
 
   revalidatePath("/admin/applications");
   revalidatePath(`/admin/applications/${id}`);
