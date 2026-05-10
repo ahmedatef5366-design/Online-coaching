@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit, rateLimitMessage } from "@/lib/security/rate-limit";
 import type { WorkoutDoneStatus } from "@/types/database";
 
 export interface ActionResult<T = void> {
@@ -57,6 +58,12 @@ export async function logWeight(input: {
   const supabase = createClient();
   const clientId = await getCurrentClientId();
   if (!clientId) return { ok: false, error: "Not authenticated." };
+  const limit = checkRateLimit({
+    key: `logWeight:${clientId}`,
+    max: 30,
+    windowMs: 60_000,
+  });
+  if (!limit.ok) return { ok: false, error: rateLimitMessage(limit.retryAt) };
   const w = asNumber(input.weight_kg);
   if (w === null || w <= 0) return { ok: false, error: "Weight is required." };
 
@@ -131,6 +138,12 @@ export async function addProgressPhoto(input: {
   const supabase = createClient();
   const clientId = await getCurrentClientId();
   if (!clientId) return { ok: false, error: "Not authenticated." };
+  const limit = checkRateLimit({
+    key: `addProgressPhoto:${clientId}`,
+    max: 20,
+    windowMs: 60_000,
+  });
+  if (!limit.ok) return { ok: false, error: rateLimitMessage(limit.retryAt) };
   const { error } = await supabase.from("progress_photos").insert({
     client_id: clientId,
     storage_path: input.storage_path,
@@ -182,6 +195,12 @@ export async function saveCheckin(
   const supabase = createClient();
   const clientId = await getCurrentClientId();
   if (!clientId) return { ok: false, error: "Not authenticated." };
+  const limit = checkRateLimit({
+    key: `saveCheckin:${clientId}`,
+    max: 30,
+    windowMs: 60_000,
+  });
+  if (!limit.ok) return { ok: false, error: rateLimitMessage(limit.retryAt) };
   const status = asStatus(input.workout_done);
   if (!status) return { ok: false, error: "Workout status is required." };
   const checkin_date =

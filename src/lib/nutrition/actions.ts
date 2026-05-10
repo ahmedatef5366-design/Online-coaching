@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { assertAdmin } from "@/lib/auth/admin-guard";
+import { checkRateLimit, rateLimitMessage } from "@/lib/security/rate-limit";
 import type { MealFoodItem, NutritionMode } from "@/types/database";
 
 export interface ActionResult<T = void> {
@@ -254,6 +255,13 @@ export async function logFood(input: LogFoodInput): Promise<ActionResult> {
     .eq("user_id", user.id)
     .maybeSingle()) as { data: { id: string } | null };
   if (!client) return { ok: false, error: "Client profile not found." };
+
+  const limit = checkRateLimit({
+    key: `logFood:${client.id}`,
+    max: 120,
+    windowMs: 60_000,
+  });
+  if (!limit.ok) return { ok: false, error: rateLimitMessage(limit.retryAt) };
 
   const grams = asNumber(input.weight_grams);
   if (grams === null || grams <= 0) {

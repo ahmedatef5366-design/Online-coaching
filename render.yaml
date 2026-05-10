@@ -1,0 +1,28 @@
+# Render deployment manifest.
+#
+# Usage: from the Render dashboard, create a new "Blueprint" and point it
+# at this repo — Render will read this file and create the web service
+# automatically. You still need to fill in the Supabase env vars in the
+# Render UI (the entries below are marked `sync: false` so secrets are not
+# committed).
+services:
+  - type: web
+    name: coaching-platform
+    runtime: node
+    region: frankfurt
+    plan: free
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
+    startCommand: pnpm start
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: NEXT_PUBLIC_SITE_URL
+        sync: false
