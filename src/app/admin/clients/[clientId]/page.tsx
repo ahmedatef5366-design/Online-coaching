@@ -4,6 +4,7 @@ import { Apple, ArrowLeft, Dumbbell, LineChart } from "lucide-react";
 import { getClientDetail } from "@/lib/clients/queries";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
 import { ClientProfileForm } from "@/components/admin/clients/client-profile-form";
+import { ResetPasswordCard } from "@/components/admin/clients/reset-password-card";
 import {
   Card,
   CardContent,
@@ -72,35 +73,43 @@ export default async function ClientDetailPage({
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-base">
-              {locale === "ar" ? "بيانات العميل" : "Client profile"}
-            </CardTitle>
-            <CardDescription>
-              {locale === "ar"
-                ? "تعديل البيانات الشخصية والأهداف."
-                : "Edit personal info, training goals, and health notes."}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ClientProfileForm
-              locale={locale}
-              clientId={detail.client.id}
-              initial={{
-                full_name: detail.profile.full_name ?? "",
-                age: detail.client.age,
-                height_cm: detail.client.height_cm,
-                starting_weight_kg: detail.client.starting_weight_kg,
-                experience_level: detail.client.experience_level,
-                goal: detail.client.goal,
-                health_notes: detail.client.health_notes,
-                start_date: detail.client.start_date,
-                target_date: detail.client.target_date,
-              }}
-            />
-          </CardContent>
-        </Card>
+        <div className="space-y-4 lg:col-span-2">
+          <ResetPasswordCard
+            locale={locale}
+            clientId={detail.client.id}
+            email={detail.profile.email}
+          />
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">
+                {locale === "ar" ? "بيانات العميل" : "Client profile"}
+              </CardTitle>
+              <CardDescription>
+                {locale === "ar"
+                  ? "تعديل البيانات الشخصية والأهداف."
+                  : "Edit personal info, training goals, and health notes."}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ClientProfileForm
+                locale={locale}
+                clientId={detail.client.id}
+                initial={{
+                  full_name: detail.profile.full_name ?? "",
+                  age: detail.client.age,
+                  height_cm: detail.client.height_cm,
+                  starting_weight_kg: detail.client.starting_weight_kg,
+                  experience_level: detail.client.experience_level,
+                  goal: detail.client.goal,
+                  health_notes: detail.client.health_notes,
+                  start_date: detail.client.start_date,
+                  target_date: detail.client.target_date,
+                }}
+              />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { LoginForm } from "@/components/auth/login-form";
 import {
   Card,
@@ -19,10 +18,7 @@ export default function LoginPage() {
         <CardContent className="space-y-4">
           <LoginForm />
           <p className="text-center text-sm text-muted-foreground">
-            New here?{" "}
-            <Link href="/signup" className="font-medium text-primary">
-              Create an account
-            </Link>
+            Don&apos;t have access yet? Ask your coach to set up your account.
           </p>
         </CardContent>
       </Card>

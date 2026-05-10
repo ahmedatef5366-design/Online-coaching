@@ -23,15 +23,9 @@ export default function PublicLayout({
             <LocaleSwitcher current={locale} />
             <Link
               href="/login"
-              className="rounded-md px-3 py-1.5 text-muted-foreground hover:text-foreground"
-            >
-              Log in
-            </Link>
-            <Link
-              href="/signup"
               className="rounded-md bg-primary px-3 py-1.5 font-medium text-primary-foreground"
             >
-              Sign up
+              Log in
             </Link>
           </nav>
         </div>
