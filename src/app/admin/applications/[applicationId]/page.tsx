@@ -77,7 +77,8 @@ export default async function AdminApplicationDetailPage({ params }: Props) {
             {application.full_name}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {t("Submitted", "اتقدم")} {formatDate(application.created_at, locale)}
+            {t("Submitted", "اتقدم")}{" "}
+            {formatDate(application.created_at, locale)}
             {application.contacted_at && (
               <>
                 {" · "}
@@ -125,7 +126,10 @@ export default async function AdminApplicationDetailPage({ params }: Props) {
             <CardContent className="grid gap-3 sm:grid-cols-2">
               <DataRow label={t("Email", "إيميل")} value={application.email} />
               <DataRow label={t("Phone", "موبايل")} value={application.phone} />
-              <DataRow label={t("Country", "الدولة")} value={application.country} />
+              <DataRow
+                label={t("Country", "الدولة")}
+                value={application.country}
+              />
               <DataRow label={t("City", "المدينة")} value={application.city} />
               <DataRow
                 label={t("Preferred contact", "وسيلة التواصل")}
@@ -146,7 +150,10 @@ export default async function AdminApplicationDetailPage({ params }: Props) {
             </CardHeader>
             <CardContent className="grid gap-3 sm:grid-cols-2">
               <DataRow label={t("Age", "العمر")} value={application.age} />
-              <DataRow label={t("Gender", "النوع")} value={application.gender} />
+              <DataRow
+                label={t("Gender", "النوع")}
+                value={application.gender}
+              />
               <DataRow
                 label={t("Height (cm)", "الطول")}
                 value={application.height_cm}
@@ -163,7 +170,8 @@ export default async function AdminApplicationDetailPage({ params }: Props) {
                 label={t("Goal", "الهدف")}
                 value={
                   application.goal
-                    ? GOAL_LABEL[application.goal]?.[locale] ?? application.goal
+                    ? (GOAL_LABEL[application.goal]?.[locale] ??
+                      application.goal)
                     : null
                 }
               />
@@ -189,7 +197,11 @@ export default async function AdminApplicationDetailPage({ params }: Props) {
               />
               <DataRow
                 label={t("Previous coaching?", "كوتشينج قبل كده؟")}
-                value={application.previous_coaching ? t("Yes", "أيوه") : t("No", "لأ")}
+                value={
+                  application.previous_coaching
+                    ? t("Yes", "أيوه")
+                    : t("No", "لأ")
+                }
               />
               <LongRow
                 label={t("Motivation", "الدافع")}
@@ -353,7 +365,9 @@ export default async function AdminApplicationDetailPage({ params }: Props) {
                   {locale === "ar" ? pkg.name_ar : pkg.name_en}
                 </p>
                 <p className="text-muted-foreground">
-                  {pkg.price > 0 ? `${pkg.price} ${pkg.currency}` : t("Custom", "مخصصة")}
+                  {pkg.price > 0
+                    ? `${pkg.price} ${pkg.currency}`
+                    : t("Custom", "مخصصة")}
                 </p>
                 <Link
                   href={`/admin/packages/${pkg.id}`}

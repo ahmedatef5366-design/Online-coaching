@@ -10,9 +10,9 @@ export const termsDoc: LegalDocument = {
   effective_date_en: "Last updated: 2025-01-01 — initial draft",
   effective_date_ar: "آخر تحديث: 2025-01-01 — مسودة أولية",
   intro_en:
-    "These Terms govern your use of the website and online coaching services provided by [BUSINESS_NAME] (\"we\", \"us\"). By submitting an application or purchasing a package, you agree to these Terms.",
+    'These Terms govern your use of the website and online coaching services provided by [BUSINESS_NAME] ("we", "us"). By submitting an application or purchasing a package, you agree to these Terms.',
   intro_ar:
-    "الشروط دي بتنظّم استخدامك للموقع وخدمات التدريب الأونلاين المقدّمة من [BUSINESS_NAME] (\"إحنا\"). بمجرد تقديم طلب أو شراء باقة، إنت موافق على الشروط دي.",
+    'الشروط دي بتنظّم استخدامك للموقع وخدمات التدريب الأونلاين المقدّمة من [BUSINESS_NAME] ("إحنا"). بمجرد تقديم طلب أو شراء باقة، إنت موافق على الشروط دي.',
   sections: [
     {
       heading_en: "Eligibility",

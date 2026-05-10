@@ -28,6 +28,31 @@ interface Props {
   photos: PhotoWithUrl[];
 }
 
+// Client-side guardrails. Storage RLS still enforces ownership server-side;
+// these are about UX (don't try to upload a 50MB video, give a clear error
+// if the user picks a non-image).
+const MAX_PHOTO_SIZE_BYTES = 8 * 1024 * 1024; // 8 MB
+const ALLOWED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+];
+const ALLOWED_IMAGE_EXTS = ["jpg", "jpeg", "png", "webp", "heic", "heif"];
+
+function inferExtension(file: File): string {
+  const fromName = file.name.split(".").pop()?.toLowerCase() ?? "";
+  if (ALLOWED_IMAGE_EXTS.includes(fromName)) return fromName;
+  // Fallback: derive from MIME type when the file name has no extension.
+  if (file.type === "image/jpeg") return "jpg";
+  if (file.type === "image/png") return "png";
+  if (file.type === "image/webp") return "webp";
+  if (file.type === "image/heic") return "heic";
+  if (file.type === "image/heif") return "heif";
+  return "jpg";
+}
+
 export function ProgressPhotosGallery({ locale, clientId, photos }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -50,10 +75,26 @@ export function ProgressPhotosGallery({ locale, clientId, photos }: Props) {
 
   async function handleUpload(file: File, takenOn: string, note: string) {
     setError(null);
+    if (file.size > MAX_PHOTO_SIZE_BYTES) {
+      setError(
+        locale === "ar"
+          ? "الصورة أكبر من 8 ميجابايت. اختار صورة أصغر."
+          : "Photo is larger than 8 MB. Pick a smaller one.",
+      );
+      return;
+    }
+    if (file.type && !ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setError(
+        locale === "ar"
+          ? "صيغة الملف مش مدعومة. استخدم JPG أو PNG أو WEBP."
+          : "Unsupported file type. Use JPG, PNG, or WEBP.",
+      );
+      return;
+    }
     setUploading(true);
     try {
       const supabase = createBrowserSupabase();
-      const ext = file.name.split(".").pop() ?? "jpg";
+      const ext = inferExtension(file);
       const path = `${clientId}/${Date.now()}-${Math.random()
         .toString(36)
         .slice(2, 8)}.${ext}`;
@@ -119,7 +160,12 @@ export function ProgressPhotosGallery({ locale, clientId, photos }: Props) {
             <Label htmlFor="photo">
               {locale === "ar" ? "الصورة" : "Photo"}
             </Label>
-            <Input id="photo" name="photo" type="file" accept="image/*" />
+            <Input
+              id="photo"
+              name="photo"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+            />
           </div>
           <div className="space-y-1">
             <Label htmlFor="taken_on">

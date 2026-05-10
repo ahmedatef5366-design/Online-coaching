@@ -1,14 +1,68 @@
 import { withSentryConfig } from "@sentry/nextjs";
 
+// Default response headers applied to every route. These are the
+// industry-standard "low blast-radius" security headers that protect against
+// clickjacking, MIME sniffing, and over-broad referrer leakage. We
+// deliberately do NOT add a Content-Security-Policy here — Next.js inlines
+// scripts in dev and the project relies on a few third-party origins
+// (Supabase, Sentry, Resend, youtube-nocookie). Adding a strict CSP without
+// auditing every origin would break the app, so it is left as a follow-up.
+const securityHeaders = [
+  // Tell browsers to keep using HTTPS for two years and pre-load. Only
+  // emitted in production responses; on http://localhost the browser ignores
+  // it.
+  {
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains; preload",
+  },
+  // Block <iframe> framing of the app from other origins (clickjacking).
+  { key: "X-Frame-Options", value: "SAMEORIGIN" },
+  // Disable MIME sniffing (defense-in-depth against XSS via wrong types).
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  // Send the origin only on cross-origin navigations, never the full path.
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  // Disable powerful browser features the app does not use.
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), payment=()",
+  },
+  // Cross-origin opener / resource isolation hardening.
+  { key: "X-DNS-Prefetch-Control", value: "on" },
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+];
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
+  poweredByHeader: false,
   images: {
     // CMS rows let admins paste arbitrary image URLs (transformation photos,
-    // hero backgrounds). Allow any HTTPS host through next/image; storage
-    // domains will be restricted as we add Phase 5 upload UI.
+    // hero backgrounds). We allow Supabase Storage for client-uploaded
+    // assets, plus a small set of common CDNs the marketing team uses. To
+    // accept additional image hosts in production, set
+    // NEXT_PUBLIC_IMAGE_HOSTS to a comma-separated list of hostnames.
     remotePatterns: [
-      { protocol: "https", hostname: "**" },
+      // Supabase Storage object URLs (any project).
+      { protocol: "https", hostname: "*.supabase.co" },
+      { protocol: "https", hostname: "*.supabase.in" },
+      // Common image CDNs used by the CMS.
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "i.imgur.com" },
+      { protocol: "https", hostname: "res.cloudinary.com" },
+      ...(process.env.NEXT_PUBLIC_IMAGE_HOSTS ?? "")
+        .split(",")
+        .map((h) => h.trim())
+        .filter(Boolean)
+        .map((hostname) => ({ protocol: "https", hostname })),
     ],
+  },
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: securityHeaders,
+      },
+    ];
   },
 };
 

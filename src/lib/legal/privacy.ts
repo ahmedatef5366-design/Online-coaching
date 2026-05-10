@@ -10,7 +10,7 @@ export const privacyDoc: LegalDocument = {
   effective_date_en: "Last updated: 2025-01-01 — initial draft",
   effective_date_ar: "آخر تحديث: 2025-01-01 — مسودة أولية",
   intro_en:
-    "This Privacy Policy explains how the online coaching service operated by [BUSINESS_NAME] (\"we\", \"us\") collects, uses, and protects your personal data when you use this website, the application form, or coaching services.",
+    'This Privacy Policy explains how the online coaching service operated by [BUSINESS_NAME] ("we", "us") collects, uses, and protects your personal data when you use this website, the application form, or coaching services.',
   intro_ar:
     "هذه السياسة بتشرح إزاي خدمة التدريب الأونلاين اللي بتديرها [BUSINESS_NAME] بتجمع بياناتك الشخصية وبتستخدمها وبتحميها لما تستخدم الموقع أو فورم التقديم أو خدمات التدريب.",
   sections: [
