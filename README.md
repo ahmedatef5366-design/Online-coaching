@@ -52,8 +52,10 @@ the SQL editor in the Supabase dashboard:
 4. `0004_seed_site_content.sql` — default landing-page CMS content
 5. `0005_progress_photos_storage.sql` — private photos bucket + policies
 6. `0006_workout_plan_coach_notes.sql` — plan-level coach notes columns
-7. `0008_messages.sql` — coach ↔ client in-app messaging (RLS + Realtime)
-8. `0009_packages_and_applications.sql` — sales packages catalog + public coaching application form (RLS)
+7. `0007_client_admin_metadata.sql` — phone / whatsapp / archive columns on clients
+8. `0008_messages.sql` — coach ↔ client in-app messaging (RLS + Realtime)
+9. `0009_packages_and_applications.sql` — sales packages catalog + public coaching application form (RLS)
+10. `0010_payments_and_subscriptions.sql` — manual Vodafone Cash payments + subscription lifecycle
 
 ### 4. Create your admin user
 
@@ -130,23 +132,33 @@ messages/
 | `pnpm e2e`                | Playwright e2e tests (boots dev server)        |
 | `pnpm e2e:install`        | Install the Chromium browser Playwright needs  |
 | `pnpm db:bootstrap-admin` | Provision an admin user (service key)          |
+| `pnpm check-env`          | Report which env vars are set/missing          |
 
 ## Deploying to Render
 
-The repo ships a `render.yaml` blueprint. From the Render dashboard
-choose **New → Blueprint**, point it at the repo and Render will create
-a web service with the right build/start commands. You still need to
-fill in these env vars in the Render UI before the first deploy:
+See **[DEPLOY.md](./DEPLOY.md)** for the complete step-by-step guide.
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (or `…_ANON_KEY`)
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `NEXT_PUBLIC_SITE_URL` — your `https://<service>.onrender.com` URL
+TL;DR:
 
-Then, in the Supabase dashboard under **Authentication → URL
-Configuration**, add the same Render URL to "Site URL" and "Redirect
-URLs" so confirmation / reset links land on the deployed app instead of
-`http://localhost:3000`.
+1. Provision a Supabase project and run migrations `0001` → `0010` in
+   order (SQL editor or `supabase db push`).
+2. Push this repo to GitHub.
+3. On <https://dashboard.render.com> create a **New → Blueprint** pointing
+   at the repo. Render reads `render.yaml` and provisions the web
+   service.
+4. Fill the required env vars from the Render dashboard:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (or `…_ANON_KEY`)
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `NEXT_PUBLIC_SITE_URL` — your `https://<service>.onrender.com`
+5. After the first successful deploy, update Supabase **Auth → URL
+   Configuration** with the real Render URL.
+6. Run `pnpm db:bootstrap-admin` locally once to create your admin
+   login.
+
+Health check endpoint: `GET /api/health` (used by Render's probe).
+
+Run `pnpm check-env` locally to verify your `.env.local` is complete.
 
 ## Roadmap
 

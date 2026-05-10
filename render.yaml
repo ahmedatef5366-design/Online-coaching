@@ -1,10 +1,15 @@
 # Render deployment manifest.
 #
-# Usage: from the Render dashboard, create a new "Blueprint" and point it
-# at this repo — Render will read this file and create the web service
-# automatically. You still need to fill in the Supabase env vars in the
-# Render UI (the entries below are marked `sync: false` so secrets are not
-# committed).
+# Usage
+# -----
+# From the Render dashboard choose **New → Blueprint** and point it at
+# this repo. Render will read this file and create the web service with
+# the right build/start commands.
+#
+# Every secret is marked `sync: false`, which tells Render to NOT commit
+# it here — you fill it in once from the dashboard after the first
+# deploy (or pre-seed from the "Environment" tab). Read DEPLOY.md for
+# the per-var cheat sheet.
 services:
   - type: web
     name: coaching-platform
@@ -16,16 +21,70 @@ services:
     # globally via npm instead — version pinned to match the lockfile.
     buildCommand: npm install -g pnpm@9.15.1 && pnpm install --frozen-lockfile && pnpm build
     startCommand: pnpm start
-    healthCheckPath: /
+    # Dedicated health check route returns 200 OK in ~1ms, so Render's
+    # zero-downtime deploy (and the free-tier sleep/wake cycle) finish
+    # faster than when probing the full landing page.
+    healthCheckPath: /api/health
     autoDeploy: true
     envVars:
+      # Runtime ----------------------------------------------------------
       - key: NODE_VERSION
         value: 20.18.0
+      # Render injects PORT automatically but Next.js respects it only when
+      # the start command reads it. `pnpm start` passes through, so no
+      # extra action needed.
+
+      # --- Supabase (required) -----------------------------------------
       - key: NEXT_PUBLIC_SUPABASE_URL
         sync: false
       - key: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
         sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
+
+      # --- Public site URL (required) ----------------------------------
+      # Set this to https://<your-service>.onrender.com (or your custom
+      # domain). Supabase auth redirects and Open Graph tags both rely on
+      # it being an absolute URL.
       - key: NEXT_PUBLIC_SITE_URL
         sync: false
+
+      # --- Coach config (for WhatsApp payment templates) ---------------
+      # Optional — safe to leave blank during first deploy. If blank, the
+      # "Send Vodafone Cash instructions" WhatsApp deep-link in the admin
+      # panel omits the coach's number from the generated message.
+      - key: NEXT_PUBLIC_COACH_VODAFONE_NUMBER
+        sync: false
+      - key: NEXT_PUBLIC_COACH_NAME
+        sync: false
+
+      # --- Cloudflare Turnstile (optional, anti-spam on /apply) --------
+      # Leave both blank to disable the CAPTCHA. If you set the widget
+      # site key, you MUST also set the secret key (verification will
+      # otherwise fail every submission and block legitimate applications).
+      - key: NEXT_PUBLIC_TURNSTILE_SITE_KEY
+        sync: false
+      - key: TURNSTILE_SECRET_KEY
+        sync: false
+
+      # --- Plausible analytics (optional, cookie-less) -----------------
+      - key: NEXT_PUBLIC_PLAUSIBLE_DOMAIN
+        sync: false
+
+      # --- Resend transactional email (optional, legacy — currently
+      # unused by payment flows; kept so future email features work
+      # without changing the blueprint) --------------------------------
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+
+      # --- Sentry error monitoring (optional) --------------------------
+      - key: NEXT_PUBLIC_SENTRY_DSN
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+      - key: SENTRY_ENVIRONMENT
+        value: production
+      - key: NEXT_PUBLIC_SENTRY_ENVIRONMENT
+        value: production
