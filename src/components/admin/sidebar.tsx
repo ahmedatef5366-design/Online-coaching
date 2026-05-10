@@ -17,7 +17,7 @@ const ITEMS = [
   { href: "/admin/clients", label: "Clients", icon: Users },
   { href: "/admin/workouts", label: "Workouts", icon: Dumbbell },
   { href: "/admin/nutrition", label: "Nutrition", icon: Apple },
-  { href: "/admin/cms", label: "Site Content", icon: FileText },
+  { href: "/admin/site-content", label: "Site Content", icon: FileText },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
