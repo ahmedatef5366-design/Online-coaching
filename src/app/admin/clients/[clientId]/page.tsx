@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Apple, ArrowLeft, Dumbbell, LineChart } from "lucide-react";
+import {
+  Apple,
+  ArrowLeft,
+  Dumbbell,
+  LineChart,
+  MessageCircle,
+} from "lucide-react";
 import { getClientDetail } from "@/lib/clients/queries";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
 import { ClientProfileForm } from "@/components/admin/clients/client-profile-form";
@@ -68,6 +74,13 @@ export default async function ClientDetailPage({
             >
               <LineChart className="h-4 w-4 text-primary" />
               {locale === "ar" ? "متابعة التقدم" : "Progress monitor"}
+            </Link>
+            <Link
+              href={`/admin/clients/${detail.client.id}/messages`}
+              className="flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium hover:bg-card/80"
+            >
+              <MessageCircle className="h-4 w-4 text-primary" />
+              {locale === "ar" ? "إرسال رسالة" : "Send a message"}
             </Link>
           </CardContent>
         </Card>

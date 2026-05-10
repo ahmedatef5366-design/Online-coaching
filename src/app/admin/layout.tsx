@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AdminSidebar } from "@/components/admin/sidebar";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { MessagesLink } from "@/components/messages/messages-link";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
 import type { UserRole } from "@/types/database";
 
@@ -41,6 +42,7 @@ export default async function AdminLayout({
             Admin · {profile?.full_name ?? profile?.email}
           </div>
           <div className="flex items-center gap-2">
+            <MessagesLink href="/admin/messages" locale={locale} />
             <LocaleSwitcher current={locale} />
             <LogoutButton />
           </div>
