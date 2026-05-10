@@ -115,15 +115,36 @@ messages/
 
 ## Scripts
 
-| Command                  | What it does                          |
-| ------------------------ | ------------------------------------- |
-| `pnpm dev`               | Start the Next.js dev server          |
-| `pnpm build`             | Production build                      |
-| `pnpm start`             | Start the built app                   |
-| `pnpm lint`              | ESLint                                |
-| `pnpm typecheck`         | `tsc --noEmit`                        |
-| `pnpm format`            | Prettier (write)                      |
-| `pnpm db:bootstrap-admin`| Provision an admin user (service key) |
+| Command                   | What it does                                   |
+| ------------------------- | ---------------------------------------------- |
+| `pnpm dev`                | Start the Next.js dev server                   |
+| `pnpm build`              | Production build                               |
+| `pnpm start`              | Start the built app                            |
+| `pnpm lint`               | ESLint                                         |
+| `pnpm typecheck`          | `tsc --noEmit`                                 |
+| `pnpm format`             | Prettier (write)                               |
+| `pnpm test`               | Vitest unit tests (one-shot)                   |
+| `pnpm test:watch`         | Vitest in watch mode                           |
+| `pnpm e2e`                | Playwright e2e tests (boots dev server)        |
+| `pnpm e2e:install`        | Install the Chromium browser Playwright needs  |
+| `pnpm db:bootstrap-admin` | Provision an admin user (service key)          |
+
+## Deploying to Render
+
+The repo ships a `render.yaml` blueprint. From the Render dashboard
+choose **New → Blueprint**, point it at the repo and Render will create
+a web service with the right build/start commands. You still need to
+fill in these env vars in the Render UI before the first deploy:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (or `…_ANON_KEY`)
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `NEXT_PUBLIC_SITE_URL` — your `https://<service>.onrender.com` URL
+
+Then, in the Supabase dashboard under **Authentication → URL
+Configuration**, add the same Render URL to "Site URL" and "Redirect
+URLs" so confirmation / reset links land on the deployed app instead of
+`http://localhost:3000`.
 
 ## Roadmap
 
