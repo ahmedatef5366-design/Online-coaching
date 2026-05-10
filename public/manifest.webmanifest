@@ -1,0 +1,19 @@
+{
+  "name": "Coaching Platform",
+  "short_name": "Coach",
+  "description": "Personalized coaching, smart nutrition, and daily accountability.",
+  "start_url": "/client/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f0f0f",
+  "theme_color": "#0f0f0f",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

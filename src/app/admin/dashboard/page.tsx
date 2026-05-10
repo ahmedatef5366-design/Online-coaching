@@ -17,17 +17,23 @@ export default async function AdminDashboardPage() {
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   const sinceDate = sevenDaysAgo.toISOString().slice(0, 10);
 
-  const [{ count: clientCount }, { count: foodCount }, { count: setsLogged }] =
-    await Promise.all([
-      supabase.from("clients").select("id", { count: "exact", head: true }),
-      supabase
-        .from("food_database")
-        .select("id", { count: "exact", head: true }),
-      supabase
-        .from("workout_logs")
-        .select("id", { count: "exact", head: true })
-        .gte("log_date", sinceDate),
-    ]);
+  const [
+    { count: clientCount },
+    { count: foodCount },
+    { count: setsLogged },
+    { count: checkinCount },
+  ] = await Promise.all([
+    supabase.from("clients").select("id", { count: "exact", head: true }),
+    supabase.from("food_database").select("id", { count: "exact", head: true }),
+    supabase
+      .from("workout_logs")
+      .select("id", { count: "exact", head: true })
+      .gte("log_date", sinceDate),
+    supabase
+      .from("daily_checkins")
+      .select("id", { count: "exact", head: true })
+      .gte("checkin_date", sinceDate),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -67,14 +73,11 @@ export default async function AdminDashboardPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardDescription>Avg. compliance</CardDescription>
-            <CardTitle className="font-display text-3xl">—</CardTitle>
+            <CardDescription>Check-ins · last 7 days</CardDescription>
+            <CardTitle className="font-display text-3xl">
+              {checkinCount ?? 0}
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-xs text-muted-foreground">
-              Available once Phase 5 ships.
-            </p>
-          </CardContent>
         </Card>
       </div>
 
