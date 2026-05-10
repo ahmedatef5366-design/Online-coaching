@@ -21,10 +21,12 @@ export function LoginForm() {
     setError(null);
     setPending(true);
     const supabase = createClient();
-    const { data, error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data, error: signInError } = await supabase.auth.signInWithPassword(
+      {
+        email,
+        password,
+      },
+    );
 
     if (signInError || !data.user) {
       setError(signInError?.message ?? "Invalid email or password.");

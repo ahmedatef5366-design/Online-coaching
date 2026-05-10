@@ -16,7 +16,8 @@ const syne = Syne({
 
 export const metadata: Metadata = {
   title: "Coaching Platform",
-  description: "Personalized coaching, smart nutrition, and daily accountability.",
+  description:
+    "Personalized coaching, smart nutrition, and daily accountability.",
 };
 
 export default function RootLayout({
@@ -28,7 +29,11 @@ export default function RootLayout({
   const dir = dirFor(locale);
 
   return (
-    <html lang={locale} dir={dir} className={`${jakarta.variable} ${syne.variable}`}>
+    <html
+      lang={locale}
+      dir={dir}
+      className={`${jakarta.variable} ${syne.variable}`}
+    >
       <body>
         <I18nProvider locale={locale}>{children}</I18nProvider>
       </body>

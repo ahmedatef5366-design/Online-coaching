@@ -23,7 +23,10 @@ export function ThemeEditor({ initial, locale }: Props) {
           label={t("Primary color", "اللون الأساسي")}
           value={f.state.primary}
           onChange={(v) => f.patch("primary", v)}
-          hint={t("Used for CTAs and accents.", "يستخدم في الأزرار والتمييزات.")}
+          hint={t(
+            "Used for CTAs and accents.",
+            "يستخدم في الأزرار والتمييزات.",
+          )}
         />
         <LabeledField
           kind="color"

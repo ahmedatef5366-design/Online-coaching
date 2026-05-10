@@ -3,9 +3,10 @@
 A full-stack online coaching platform: a public CMS-driven landing page,
 an admin dashboard for coaches, and a mobile-first client portal.
 
-> **Status:** Phase 1 — foundation. Auth + role-based routing + base UI
-> shells + i18n/RTL + DB schema are in place. Feature surfaces (workouts,
-> nutrition, progress, check-in, monitoring) ship in Phases 2–6.
+> **Status:** Phase 3 — client management + workout plan builder + client
+> set logger with rest timer are live. Earlier phases (foundation, CMS
+> landing page) ship as the first two PRs. Nutrition, body tracking,
+> check-ins, and monitoring follow in Phases 4–6.
 
 ## Tech stack
 

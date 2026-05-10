@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   Users,
   FileText,
-  Dumbbell,
   Apple,
   Settings,
 } from "lucide-react";
@@ -15,7 +14,6 @@ import { cn } from "@/lib/utils";
 const ITEMS = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/clients", label: "Clients", icon: Users },
-  { href: "/admin/workouts", label: "Workouts", icon: Dumbbell },
   { href: "/admin/nutrition", label: "Nutrition", icon: Apple },
   { href: "/admin/site-content", label: "Site Content", icon: FileText },
   { href: "/admin/settings", label: "Settings", icon: Settings },
@@ -26,7 +24,10 @@ export function AdminSidebar() {
   return (
     <aside className="hidden w-60 shrink-0 border-r border-border/60 bg-card/40 lg:block">
       <div className="px-5 py-6">
-        <Link href="/admin/dashboard" className="font-display text-xl font-bold">
+        <Link
+          href="/admin/dashboard"
+          className="font-display text-xl font-bold"
+        >
           Coach<span className="text-primary">.</span>
         </Link>
       </div>

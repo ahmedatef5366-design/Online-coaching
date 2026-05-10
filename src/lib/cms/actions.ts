@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { assertAdmin } from "@/lib/auth/admin-guard";
 import {
   isValidSectionKey,
   type SectionContentMap,
@@ -11,25 +12,6 @@ import {
 export interface ActionResult {
   ok: boolean;
   error?: string;
-}
-
-async function assertAdmin(): Promise<{ ok: true } | { ok: false; error: string }> {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Not authenticated." };
-
-  const { data } = (await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle()) as { data: { role: "admin" | "client" } | null };
-
-  if (data?.role !== "admin") {
-    return { ok: false, error: "Forbidden — admin access required." };
-  }
-  return { ok: true };
 }
 
 /**
@@ -49,15 +31,13 @@ export async function saveSection<K extends SectionKey>(
   }
 
   const supabase = createClient();
-  const { error } = await supabase
-    .from("site_content")
-    .upsert(
-      {
-        section_key: key,
-        content_json: content as unknown as Record<string, unknown>,
-      },
-      { onConflict: "section_key" },
-    );
+  const { error } = await supabase.from("site_content").upsert(
+    {
+      section_key: key,
+      content_json: content as unknown as Record<string, unknown>,
+    },
+    { onConflict: "section_key" },
+  );
   if (error) return { ok: false, error: error.message };
 
   revalidatePath("/");

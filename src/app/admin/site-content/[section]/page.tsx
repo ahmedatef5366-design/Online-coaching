@@ -28,7 +28,8 @@ export default async function SiteContentSectionPage({
   }
   const locale = readLocaleFromCookie();
   const data = await loadSection(section as SectionKey);
-  const label = locale === "ar" ? data.descriptor.label_ar : data.descriptor.label_en;
+  const label =
+    locale === "ar" ? data.descriptor.label_ar : data.descriptor.label_en;
 
   return (
     <div className="flex flex-col gap-6">
@@ -43,7 +44,9 @@ export default async function SiteContentSectionPage({
           </Link>
           <h1 className="font-display text-2xl font-bold">{label}</h1>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            {locale === "ar" ? data.descriptor.description_ar : data.descriptor.description_en}
+            {locale === "ar"
+              ? data.descriptor.description_ar
+              : data.descriptor.description_en}
           </p>
         </div>
         <Link
@@ -64,11 +67,7 @@ export default async function SiteContentSectionPage({
   );
 }
 
-function renderEditor(
-  key: SectionKey,
-  content: unknown,
-  locale: Locale,
-) {
+function renderEditor(key: SectionKey, content: unknown, locale: Locale) {
   switch (key) {
     case "hero":
       return <HeroEditor initial={content as never} locale={locale} />;

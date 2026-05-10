@@ -70,6 +70,46 @@ export interface FoodDatabaseRow {
   created_at: string;
 }
 
+export interface WorkoutPlan {
+  id: string;
+  client_id: string;
+  name: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WorkoutDay {
+  id: string;
+  plan_id: string;
+  day_number: number;
+  day_name: string;
+}
+
+export interface Exercise {
+  id: string;
+  day_id: string;
+  name: string;
+  sets: number;
+  reps: string;
+  rest_seconds: number;
+  notes: string | null;
+  video_url: string | null;
+  display_order: number;
+  created_at: string;
+}
+
+export interface WorkoutLog {
+  id: string;
+  client_id: string;
+  exercise_id: string;
+  log_date: string;
+  set_number: number;
+  weight_kg: number | null;
+  reps_done: number | null;
+  created_at: string;
+}
+
 type TableShape<R, I, U> = {
   Row: R;
   Insert: I;
@@ -108,6 +148,28 @@ export interface Database {
             | "fat_per_100g"
           >,
         Partial<FoodDatabaseRow>
+      >;
+      workout_plans: TableShape<
+        WorkoutPlan,
+        Partial<WorkoutPlan> & Pick<WorkoutPlan, "client_id" | "name">,
+        Partial<WorkoutPlan>
+      >;
+      workout_days: TableShape<
+        WorkoutDay,
+        Partial<WorkoutDay> &
+          Pick<WorkoutDay, "plan_id" | "day_number" | "day_name">,
+        Partial<WorkoutDay>
+      >;
+      exercises: TableShape<
+        Exercise,
+        Partial<Exercise> & Pick<Exercise, "day_id" | "name" | "sets" | "reps">,
+        Partial<Exercise>
+      >;
+      workout_logs: TableShape<
+        WorkoutLog,
+        Partial<WorkoutLog> &
+          Pick<WorkoutLog, "client_id" | "exercise_id" | "set_number">,
+        Partial<WorkoutLog>
       >;
     };
     Views: Record<string, never>;
