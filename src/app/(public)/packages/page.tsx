@@ -1,18 +1,60 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { CheckCircle2, Sparkles } from "lucide-react";
 import { listActivePackages } from "@/lib/packages/queries";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
 import { formatBillingPeriod } from "@/lib/packages/format";
+import { JsonLd } from "@/components/seo/json-ld";
+import { siteUrl, SITE_NAME } from "@/lib/seo/site";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Coaching packages",
+  description:
+    "Pick from monthly, quarterly, and custom online coaching packages — training programs, nutrition guidance, and 1:1 support.",
+  alternates: { canonical: `${siteUrl()}/packages` },
+  openGraph: {
+    title: "Coaching packages",
+    description:
+      "Pick from monthly, quarterly, and custom online coaching packages.",
+    url: `${siteUrl()}/packages`,
+    type: "website",
+  },
+};
 
 export default async function PackagesPage() {
   const locale = readLocaleFromCookie();
   const packages = await listActivePackages();
   const t = (en: string, ar: string) => (locale === "ar" ? ar : en);
 
+  // Build structured data for each active package so search engines can
+  // surface the offer (price, currency, name) directly in results.
+  const offerJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: packages.map((p, idx) => ({
+      "@type": "ListItem",
+      position: idx + 1,
+      item: {
+        "@type": "Service",
+        name: p.name_en,
+        description: p.description_en ?? undefined,
+        provider: { "@type": "Organization", name: SITE_NAME },
+        offers: {
+          "@type": "Offer",
+          price: p.price,
+          priceCurrency: p.currency,
+          url: `${siteUrl()}/packages#${p.slug}`,
+          availability: "https://schema.org/InStock",
+        },
+      },
+    })),
+  } as const;
+
   return (
     <div className="container py-16">
+      {packages.length > 0 && <JsonLd data={offerJsonLd} />}
       <div className="mx-auto max-w-3xl text-center">
         <p className="mb-3 inline-flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1 text-xs uppercase tracking-widest text-muted-foreground">
           <Sparkles className="h-3 w-3" />

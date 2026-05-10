@@ -22,6 +22,12 @@ import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
 import { Reveal } from "@/components/ui/reveal";
 import { listActivePackages } from "@/lib/packages/queries";
 import { formatBillingPeriod } from "@/lib/packages/format";
+import { JsonLd } from "@/components/seo/json-ld";
+import {
+  SITE_DEFAULT_DESCRIPTION,
+  SITE_NAME,
+  siteUrl,
+} from "@/lib/seo/site";
 import type {
   CtaFooterContent,
   FeaturesContent,
@@ -79,8 +85,29 @@ export default async function LandingPage() {
     ?.isPublished;
   const ctaFooter = published.get("cta_footer") as CtaFooterContent | undefined;
 
+  // Top-level Organization + Service structured data so search engines
+  // understand who runs the site and what we do.
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SITE_NAME,
+    url: siteUrl(),
+    description: SITE_DEFAULT_DESCRIPTION,
+  } as const;
+  const serviceJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: "Online fitness & nutrition coaching",
+    serviceType: "Online personal coaching",
+    provider: { "@type": "Organization", name: SITE_NAME, url: siteUrl() },
+    areaServed: "Worldwide",
+    description: SITE_DEFAULT_DESCRIPTION,
+  } as const;
+
   return (
     <div className="relative">
+      <JsonLd data={orgJsonLd} />
+      <JsonLd data={serviceJsonLd} />
       {/* Hero --------------------------------------------------------------- */}
       {hero && (
         <section className="relative overflow-hidden">

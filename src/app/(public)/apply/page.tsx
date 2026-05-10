@@ -1,9 +1,28 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { listActivePackages } from "@/lib/packages/queries";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
 import { ApplyForm } from "@/components/apply/apply-form";
+import { siteUrl } from "@/lib/seo/site";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Apply for coaching",
+  description:
+    "Tell us about your goals, training history, and lifestyle so the coach can build a plan tailored to you. Takes about 5 minutes.",
+  alternates: { canonical: `${siteUrl()}/apply` },
+  openGraph: {
+    title: "Apply for coaching",
+    description:
+      "Submit your application — goals, training history, and lifestyle. The coach will reach out to confirm.",
+    url: `${siteUrl()}/apply`,
+    type: "website",
+  },
+  // Discourage indexing of the form variants — keep the canonical /apply
+  // entry in search results without ?package_id query strings.
+  robots: { index: true, follow: true },
+};
 
 interface Props {
   searchParams: { package_id?: string };
