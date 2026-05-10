@@ -75,6 +75,8 @@ export interface WorkoutPlan {
   client_id: string;
   name: string;
   is_active: boolean;
+  general_notes: string | null;
+  attention_notes: string | null;
   created_at: string;
   updated_at: string;
 }

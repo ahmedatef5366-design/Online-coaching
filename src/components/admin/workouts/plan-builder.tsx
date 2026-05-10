@@ -2,10 +2,11 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2 } from "lucide-react";
+import { AlertTriangle, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
@@ -19,6 +20,7 @@ import {
   deleteDay,
   renameDay,
   renamePlan,
+  updatePlanNotes,
 } from "@/lib/workouts/actions";
 import type { Locale } from "@/lib/i18n/config";
 import type { PlanWithDays } from "@/lib/workouts/queries";
@@ -110,6 +112,14 @@ export function PlanBuilder({ clientId, locale, plan }: Props) {
         locale={locale}
         planId={plan.plan.id}
         initialName={plan.plan.name}
+      />
+
+      <PlanNotesEditor
+        clientId={clientId}
+        locale={locale}
+        planId={plan.plan.id}
+        initialGeneral={plan.plan.general_notes ?? ""}
+        initialAttention={plan.plan.attention_notes ?? ""}
       />
 
       <div className="space-y-4">
@@ -208,6 +218,137 @@ function PlanHeader({
             <p className="w-full text-sm text-destructive" role="alert">
               {error}
             </p>
+          ) : null}
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
+function PlanNotesEditor({
+  clientId,
+  locale,
+  planId,
+  initialGeneral,
+  initialAttention,
+}: {
+  clientId: string;
+  locale: Locale;
+  planId: string;
+  initialGeneral: string;
+  initialAttention: string;
+}) {
+  const router = useRouter();
+  const [general, setGeneral] = useState(initialGeneral);
+  const [attention, setAttention] = useState(initialAttention);
+  const [isPending, startTransition] = useTransition();
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">
+          {locale === "ar" ? "ملاحظات الكوتش" : "Coach notes"}
+        </CardTitle>
+        <CardDescription>
+          {locale === "ar"
+            ? "بتظهر للعميل في صفحة التمارين. «احترس» بتتبرز في كرت أصفر فوق التمارين."
+            : "Shown to the client on their workouts page. “Attention” items render as a highlighted callout above the day's exercises."}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            setSaved(false);
+            setError(null);
+            startTransition(async () => {
+              const result = await updatePlanNotes(
+                planId,
+                clientId,
+                general,
+                attention,
+              );
+              if (!result.ok) {
+                setError(result.error ?? "Save failed.");
+                return;
+              }
+              setSaved(true);
+              router.refresh();
+            });
+          }}
+          className="space-y-4"
+        >
+          <div className="space-y-2">
+            <Label htmlFor="general-notes">
+              {locale === "ar"
+                ? "ملاحظات عامة (Mind-muscle, tempo, إلخ)"
+                : "General notes (mind-muscle, tempo, etc.)"}
+            </Label>
+            <Textarea
+              id="general-notes"
+              value={general}
+              onChange={(e) => setGeneral(e.target.value)}
+              rows={3}
+              maxLength={1000}
+              placeholder={
+                locale === "ar"
+                  ? "مثلاً: ركّز على mind-muscle connection في كل سيت."
+                  : "e.g. Focus on the mind-muscle connection on every set."
+              }
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="attention-notes">
+              {locale === "ar"
+                ? "احترس / لازم تخلي بالك (هتظهر مميزة)"
+                : "Attention items (rendered highlighted)"}
+            </Label>
+            <Textarea
+              id="attention-notes"
+              value={attention}
+              onChange={(e) => setAttention(e.target.value)}
+              rows={3}
+              maxLength={1000}
+              placeholder={
+                locale === "ar"
+                  ? "مثلاً: لو عندك ألم في الظهر، استبدل الـ deadlift بـ rack pull."
+                  : "e.g. Skip the deadlift and use a rack pull if your lower back is sore."
+              }
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button type="submit" variant="outline" disabled={isPending}>
+              {isPending
+                ? locale === "ar"
+                  ? "جاري الحفظ…"
+                  : "Saving…"
+                : locale === "ar"
+                  ? "حفظ الملاحظات"
+                  : "Save notes"}
+            </Button>
+            {saved ? (
+              <p className="text-sm text-primary">
+                {locale === "ar" ? "تم الحفظ ✓" : "Saved ✓"}
+              </p>
+            ) : null}
+            {error ? (
+              <p className="w-full text-sm text-destructive" role="alert">
+                {error}
+              </p>
+            ) : null}
+          </div>
+          {attention.trim() ? (
+            <div
+              className="flex items-start gap-2 rounded-md border border-yellow-500/40 bg-yellow-500/10 px-3 py-2 text-xs text-yellow-200"
+              aria-live="polite"
+            >
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+              <span className="whitespace-pre-wrap leading-relaxed">
+                {attention}
+              </span>
+            </div>
           ) : null}
         </form>
       </CardContent>

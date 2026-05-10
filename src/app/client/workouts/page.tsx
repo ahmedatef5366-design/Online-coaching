@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Dumbbell } from "lucide-react";
+import { AlertTriangle, ArrowRight, Dumbbell, Megaphone } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getActivePlan } from "@/lib/workouts/queries";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
@@ -61,6 +61,37 @@ export default async function ClientWorkoutsPage() {
           {plan.plan.name}
         </h1>
       </div>
+
+      {plan.plan.attention_notes ? (
+        <div
+          className="flex items-start gap-3 rounded-xl border border-yellow-500/40 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-200"
+          role="note"
+        >
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
+          <div className="space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-wider">
+              {locale === "ar" ? "لازم تخلي بالك" : "Heads up"}
+            </p>
+            <p className="whitespace-pre-wrap leading-relaxed">
+              {plan.plan.attention_notes}
+            </p>
+          </div>
+        </div>
+      ) : null}
+
+      {plan.plan.general_notes ? (
+        <div className="flex items-start gap-3 rounded-xl border border-border/60 bg-card/60 px-4 py-3 text-sm text-muted-foreground">
+          <Megaphone className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+          <div className="space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-wider text-foreground">
+              {locale === "ar" ? "ملاحظات الكوتش" : "Coach notes"}
+            </p>
+            <p className="whitespace-pre-wrap leading-relaxed">
+              {plan.plan.general_notes}
+            </p>
+          </div>
+        </div>
+      ) : null}
 
       {plan.days.length === 0 ? (
         <Card>
