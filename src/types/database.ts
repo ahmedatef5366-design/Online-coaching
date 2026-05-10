@@ -1,0 +1,124 @@
+/**
+ * Hand-written database types for the coaching platform.
+ *
+ * These mirror the schema in supabase/migrations and are kept terse on
+ * purpose — once the project has a live Supabase instance, regenerate the
+ * canonical types with:
+ *
+ *   pnpm supabase gen types typescript --project-id <ref> > src/types/database.gen.ts
+ *
+ * and switch the import in @/lib/supabase/* to the generated file.
+ *
+ * The shape (Row/Insert/Update/Relationships per table) is dictated by
+ * @supabase/postgrest-js' `GenericTable` constraint — without it, typed
+ * `select(...)` queries collapse to `never`.
+ */
+
+export type UserRole = "admin" | "client";
+export type ExperienceLevel = "beginner" | "intermediate" | "advanced";
+export type TrainingGoal =
+  | "fat_loss"
+  | "muscle_gain"
+  | "recomposition"
+  | "athletic_performance";
+export type NutritionMode = "fixed" | "flexible";
+export type WorkoutDoneStatus = "yes" | "partial" | "no";
+
+export interface Profile {
+  id: string;
+  email: string;
+  role: UserRole;
+  full_name: string | null;
+  preferred_locale: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Client {
+  id: string;
+  user_id: string;
+  age: number | null;
+  height_cm: number | null;
+  starting_weight_kg: number | null;
+  experience_level: ExperienceLevel | null;
+  goal: TrainingGoal | null;
+  health_notes: string | null;
+  start_date: string | null;
+  target_date: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SiteContent {
+  id: string;
+  section_key: string;
+  content_json: Record<string, unknown>;
+  is_published: boolean;
+  updated_at: string;
+}
+
+export interface FoodDatabaseRow {
+  id: string;
+  name: string;
+  name_ar: string | null;
+  calories_per_100g: number;
+  protein_per_100g: number;
+  carbs_per_100g: number;
+  fat_per_100g: number;
+  is_custom: boolean;
+  created_by: string | null;
+  created_at: string;
+}
+
+type TableShape<R, I, U> = {
+  Row: R;
+  Insert: I;
+  Update: U;
+  Relationships: [];
+};
+
+export interface Database {
+  public: {
+    Tables: {
+      profiles: TableShape<
+        Profile,
+        Partial<Profile> & Pick<Profile, "id" | "email" | "role">,
+        Partial<Profile>
+      >;
+      clients: TableShape<
+        Client,
+        Partial<Client> & Pick<Client, "user_id">,
+        Partial<Client>
+      >;
+      site_content: TableShape<
+        SiteContent,
+        Partial<SiteContent> &
+          Pick<SiteContent, "section_key" | "content_json">,
+        Partial<SiteContent>
+      >;
+      food_database: TableShape<
+        FoodDatabaseRow,
+        Partial<FoodDatabaseRow> &
+          Pick<
+            FoodDatabaseRow,
+            | "name"
+            | "calories_per_100g"
+            | "protein_per_100g"
+            | "carbs_per_100g"
+            | "fat_per_100g"
+          >,
+        Partial<FoodDatabaseRow>
+      >;
+    };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: {
+      user_role: UserRole;
+      experience_level: ExperienceLevel;
+      training_goal: TrainingGoal;
+      nutrition_mode: NutritionMode;
+      workout_done_status: WorkoutDoneStatus;
+    };
+    CompositeTypes: Record<string, never>;
+  };
+}
