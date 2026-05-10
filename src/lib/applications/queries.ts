@@ -1,9 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
-import type {
-  ApplicationStatus,
-  CoachingApplication,
-} from "@/types/database";
+import type { ApplicationStatus, CoachingApplication } from "@/types/database";
 
 export interface ApplicationListFilters {
   status?: ApplicationStatus | "all";

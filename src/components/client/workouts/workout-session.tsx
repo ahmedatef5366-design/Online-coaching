@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { logSet } from "@/lib/workouts/actions";
 import { getYouTubeEmbedUrl } from "@/lib/workouts/youtube";
+import { safeHttpUrl } from "@/lib/utils/safe-url";
 import type { Exercise, WorkoutLog } from "@/types/database";
 import type { Locale } from "@/lib/i18n/config";
 import { RestTimer } from "./rest-timer";
@@ -186,6 +187,10 @@ function ExerciseCard({
     () => getYouTubeEmbedUrl(exercise.video_url),
     [exercise.video_url],
   );
+  const safeVideoUrl = useMemo(
+    () => safeHttpUrl(exercise.video_url),
+    [exercise.video_url],
+  );
   const [weight, setWeight] = useState("");
   const [reps, setReps] = useState("");
   const [isPending, setPending] = useState(false);
@@ -223,11 +228,11 @@ function ExerciseCard({
         <p className="text-xs text-muted-foreground">
           {exercise.sets} × {exercise.reps} ·{" "}
           {locale === "ar" ? "راحة" : "rest"} {exercise.rest_seconds}s
-          {!embedUrl && exercise.video_url ? (
+          {!embedUrl && safeVideoUrl ? (
             <>
               {" · "}
               <a
-                href={exercise.video_url}
+                href={safeVideoUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="text-primary hover:underline"

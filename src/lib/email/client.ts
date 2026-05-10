@@ -41,7 +41,12 @@ export async function sendEmail(
 ): Promise<SendEmailResult> {
   const client = getClient();
   if (!client) {
-    return { ok: true, id: null, skipped: true, reason: "RESEND_API_KEY unset" };
+    return {
+      ok: true,
+      id: null,
+      skipped: true,
+      reason: "RESEND_API_KEY unset",
+    };
   }
 
   const from = process.env.EMAIL_FROM ?? DEFAULT_FROM;

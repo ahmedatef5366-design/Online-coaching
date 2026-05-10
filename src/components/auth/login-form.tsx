@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { safeRedirectPath } from "@/lib/auth/safe-redirect";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,7 +44,9 @@ export function LoginForm() {
 
     const fallback =
       profile?.role === "admin" ? "/admin/dashboard" : "/client/dashboard";
-    const redirect = params.get("redirect") ?? fallback;
+    // Reject off-site or schemed redirect targets to avoid open-redirect
+    // attacks via `?redirect=https://evil.example`.
+    const redirect = safeRedirectPath(params.get("redirect")) ?? fallback;
     router.replace(redirect);
     router.refresh();
   }

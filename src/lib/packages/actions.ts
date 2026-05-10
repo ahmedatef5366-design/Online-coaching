@@ -133,7 +133,10 @@ export async function savePackage(
     revalidatePath("/");
     revalidatePath("/packages");
     revalidatePath("/admin/packages");
-    return { ok: true, data: { id: (data as { id: string } | null)?.id ?? input.id } };
+    return {
+      ok: true,
+      data: { id: (data as { id: string } | null)?.id ?? input.id },
+    };
   }
 
   const { data, error } = await supabase

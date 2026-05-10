@@ -266,7 +266,10 @@ export function ApplyForm({ locale, packages, initialPackageId }: Props) {
               error={errors.email}
             />
             <Field
-              label={t("Phone (with country code)", "رقم الموبايل (مع كود الدولة)")}
+              label={t(
+                "Phone (with country code)",
+                "رقم الموبايل (مع كود الدولة)",
+              )}
               required
               type="tel"
               placeholder="+201234567890"
@@ -287,7 +290,9 @@ export function ApplyForm({ locale, packages, initialPackageId }: Props) {
             <SelectField
               label={t("Preferred contact method", "وسيلة التواصل المفضلة")}
               value={state.preferred_contact}
-              onChange={(v) => update("preferred_contact", v as FormState["preferred_contact"])}
+              onChange={(v) =>
+                update("preferred_contact", v as FormState["preferred_contact"])
+              }
               options={[
                 { value: "whatsapp", label: t("WhatsApp", "واتساب") },
                 { value: "phone", label: t("Phone call", "مكالمة") },
@@ -304,15 +309,15 @@ export function ApplyForm({ locale, packages, initialPackageId }: Props) {
 
           {packages.length > 0 && (
             <div className="mt-4">
-              <Label>{t("Interested in package", "الباقة اللي مهتم بيها")}</Label>
+              <Label>
+                {t("Interested in package", "الباقة اللي مهتم بيها")}
+              </Label>
               <select
                 value={state.package_id}
                 onChange={(e) => update("package_id", e.target.value)}
                 className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                <option value="">
-                  {t("Not sure yet", "مش متأكد لسه")}
-                </option>
+                <option value="">{t("Not sure yet", "مش متأكد لسه")}</option>
                 {packages.map((p) => (
                   <option key={p.id} value={p.id}>
                     {locale === "ar" ? p.name_ar : p.name_en} —{" "}
@@ -353,7 +358,10 @@ export function ApplyForm({ locale, packages, initialPackageId }: Props) {
                 { value: "", label: "—" },
                 { value: "male", label: t("Male", "ذكر") },
                 { value: "female", label: t("Female", "أنثى") },
-                { value: "other", label: t("Prefer not to say", "أفضّل عدم الذكر") },
+                {
+                  value: "other",
+                  label: t("Prefer not to say", "أفضّل عدم الذكر"),
+                },
               ]}
             />
             <Field
@@ -381,9 +389,18 @@ export function ApplyForm({ locale, packages, initialPackageId }: Props) {
               options={[
                 { value: "", label: "—" },
                 { value: "fat_loss", label: t("Fat loss", "خسارة دهون") },
-                { value: "muscle_gain", label: t("Muscle gain", "زيادة عضلية") },
-                { value: "recomposition", label: t("Recomposition", "تنحيف وتضخيم") },
-                { value: "athletic_performance", label: t("Athletic performance", "أداء رياضي") },
+                {
+                  value: "muscle_gain",
+                  label: t("Muscle gain", "زيادة عضلية"),
+                },
+                {
+                  value: "recomposition",
+                  label: t("Recomposition", "تنحيف وتضخيم"),
+                },
+                {
+                  value: "athletic_performance",
+                  label: t("Athletic performance", "أداء رياضي"),
+                },
               ]}
             />
             <Field
@@ -416,7 +433,9 @@ export function ApplyForm({ locale, packages, initialPackageId }: Props) {
             <SelectField
               label={t("Experience level", "مستوى الخبرة")}
               value={state.experience_level}
-              onChange={(v) => update("experience_level", v as FormState["experience_level"])}
+              onChange={(v) =>
+                update("experience_level", v as FormState["experience_level"])
+              }
               options={[
                 { value: "", label: "—" },
                 { value: "beginner", label: t("Beginner", "مبتدئ") },
@@ -425,7 +444,10 @@ export function ApplyForm({ locale, packages, initialPackageId }: Props) {
               ]}
             />
             <SelectField
-              label={t("Trained with a coach before?", "اتمرنت مع كوتش قبل كده؟")}
+              label={t(
+                "Trained with a coach before?",
+                "اتمرنت مع كوتش قبل كده؟",
+              )}
               value={state.previous_coaching ? "yes" : "no"}
               onChange={(v) => update("previous_coaching", v === "yes")}
               options={[
@@ -434,7 +456,10 @@ export function ApplyForm({ locale, packages, initialPackageId }: Props) {
               ]}
             />
             <Field
-              label={t("Days per week you can train", "عدد أيام التمرين في الأسبوع")}
+              label={t(
+                "Days per week you can train",
+                "عدد أيام التمرين في الأسبوع",
+              )}
               type="number"
               value={state.training_days_per_week}
               onChange={(v) => update("training_days_per_week", v)}
@@ -442,7 +467,9 @@ export function ApplyForm({ locale, packages, initialPackageId }: Props) {
             <SelectField
               label={t("Where will you train?", "هتتمرن فين؟")}
               value={state.training_location}
-              onChange={(v) => update("training_location", v as FormState["training_location"])}
+              onChange={(v) =>
+                update("training_location", v as FormState["training_location"])
+              }
               options={[
                 { value: "", label: "—" },
                 { value: "gym", label: t("Gym", "جيم") },
@@ -509,10 +536,7 @@ export function ApplyForm({ locale, packages, initialPackageId }: Props) {
               />
             </div>
             <TextareaField
-              label={t(
-                "Past surgeries (if any)",
-                "أي عمليات جراحية سابقة",
-              )}
+              label={t("Past surgeries (if any)", "أي عمليات جراحية سابقة")}
               value={state.surgeries_text}
               onChange={(v) => update("surgeries_text", v)}
               rows={2}
@@ -565,10 +589,18 @@ export function ApplyForm({ locale, packages, initialPackageId }: Props) {
             <SelectField
               label={t("Daily activity level", "مستوى النشاط اليومي")}
               value={state.daily_activity_level}
-              onChange={(v) => update("daily_activity_level", v as FormState["daily_activity_level"])}
+              onChange={(v) =>
+                update(
+                  "daily_activity_level",
+                  v as FormState["daily_activity_level"],
+                )
+              }
               options={[
                 { value: "", label: "—" },
-                { value: "sedentary", label: t("Sedentary (desk job)", "قليل (مكتبي)") },
+                {
+                  value: "sedentary",
+                  label: t("Sedentary (desk job)", "قليل (مكتبي)"),
+                },
                 { value: "light", label: t("Light", "خفيف") },
                 { value: "moderate", label: t("Moderate", "متوسط") },
                 { value: "active", label: t("Active", "نشيط") },
@@ -605,7 +637,10 @@ export function ApplyForm({ locale, packages, initialPackageId }: Props) {
             />
           </div>
           <TextareaField
-            label={t("Anything else we should know?", "أي حاجة تانية محتاج تقولهالنا؟")}
+            label={t(
+              "Anything else we should know?",
+              "أي حاجة تانية محتاج تقولهالنا؟",
+            )}
             value={state.notes}
             onChange={(v) => update("notes", v)}
             rows={3}

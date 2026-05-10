@@ -12,10 +12,7 @@ export default function ApplyThankYouPage() {
         <CheckCircle2 className="h-8 w-8" />
       </div>
       <h1 className="font-display text-3xl font-bold md:text-4xl">
-        {t(
-          "We got your application!",
-          "وصلنا طلبك!",
-        )}
+        {t("We got your application!", "وصلنا طلبك!")}
       </h1>
       <p className="mt-3 text-muted-foreground">
         {t(

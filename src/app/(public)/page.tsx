@@ -23,11 +23,7 @@ import { Reveal } from "@/components/ui/reveal";
 import { listActivePackages } from "@/lib/packages/queries";
 import { formatBillingPeriod } from "@/lib/packages/format";
 import { JsonLd } from "@/components/seo/json-ld";
-import {
-  SITE_DEFAULT_DESCRIPTION,
-  SITE_NAME,
-  siteUrl,
-} from "@/lib/seo/site";
+import { SITE_DEFAULT_DESCRIPTION, SITE_NAME, siteUrl } from "@/lib/seo/site";
 import type {
   CtaFooterContent,
   FeaturesContent,
@@ -81,8 +77,9 @@ export default async function LandingPage() {
     | TestimonialsContent
     | undefined;
   const pricing = published.get("pricing") as PricingContent | undefined;
-  const pricingPublished = sections.find((s) => s.key === "pricing")
-    ?.isPublished;
+  const pricingPublished = sections.find(
+    (s) => s.key === "pricing",
+  )?.isPublished;
   const ctaFooter = published.get("cta_footer") as CtaFooterContent | undefined;
 
   // Top-level Organization + Service structured data so search engines
@@ -415,7 +412,11 @@ export default async function LandingPage() {
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {pricing.tiers.map((tier, i) => {
                     const name = pickLocaleText(tier, "name", locale);
-                    const featuresText = pickLocaleText(tier, "features", locale);
+                    const featuresText = pickLocaleText(
+                      tier,
+                      "features",
+                      locale,
+                    );
                     return (
                       <article
                         key={`${name}-${i}`}

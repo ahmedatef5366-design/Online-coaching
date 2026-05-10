@@ -112,12 +112,7 @@ export function PackageForm({ initial, locale }: Props) {
 
   function onDelete() {
     if (!initial?.id) return;
-    if (
-      !window.confirm(
-        t("Delete this package?", "تحذف الباقة دي؟"),
-      )
-    )
-      return;
+    if (!window.confirm(t("Delete this package?", "تحذف الباقة دي؟"))) return;
     startDeleting(async () => {
       const res = await deletePackage(initial.id);
       if (res.ok) {
@@ -154,7 +149,9 @@ export function PackageForm({ initial, locale }: Props) {
             />
           </div>
           <div className="space-y-1.5 sm:col-span-2">
-            <Label>{t("Slug (auto if blank)", "الـSlug (أوتوماتيك لو فاضي)")}</Label>
+            <Label>
+              {t("Slug (auto if blank)", "الـSlug (أوتوماتيك لو فاضي)")}
+            </Label>
             <Input
               value={state.slug}
               onChange={(e) => update("slug", e.target.value)}
@@ -227,10 +224,7 @@ export function PackageForm({ initial, locale }: Props) {
           {t("Features", "المميزات")}
         </h2>
         <p className="mb-4 text-xs text-muted-foreground">
-          {t(
-            "One feature per line.",
-            "ميزة في كل سطر.",
-          )}
+          {t("One feature per line.", "ميزة في كل سطر.")}
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">

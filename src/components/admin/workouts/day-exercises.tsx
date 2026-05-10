@@ -13,6 +13,7 @@ import {
   updateExercise,
   type ExerciseInput,
 } from "@/lib/workouts/actions";
+import { safeHttpUrl } from "@/lib/utils/safe-url";
 import type { Exercise } from "@/types/database";
 import type { Locale } from "@/lib/i18n/config";
 
@@ -101,19 +102,22 @@ function ExerciseRow({
         <p className="text-xs text-muted-foreground">
           {exercise.sets} × {exercise.reps} ·{" "}
           {locale === "ar" ? "راحة" : "rest"} {exercise.rest_seconds}s
-          {exercise.video_url ? (
-            <>
-              {" · "}
-              <a
-                href={exercise.video_url}
-                target="_blank"
-                rel="noreferrer"
-                className="text-primary hover:underline"
-              >
-                {locale === "ar" ? "فيديو" : "Video"}
-              </a>
-            </>
-          ) : null}
+          {(() => {
+            const safeVideoUrl = safeHttpUrl(exercise.video_url);
+            return safeVideoUrl ? (
+              <>
+                {" · "}
+                <a
+                  href={safeVideoUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  {locale === "ar" ? "فيديو" : "Video"}
+                </a>
+              </>
+            ) : null;
+          })()}
         </p>
         {exercise.notes ? (
           <p className="text-xs italic text-muted-foreground">

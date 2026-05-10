@@ -1,5 +1,8 @@
 import Link from "next/link";
-import { listApplications, countApplicationsByStatus } from "@/lib/applications/queries";
+import {
+  listApplications,
+  countApplicationsByStatus,
+} from "@/lib/applications/queries";
 import { listAllPackages } from "@/lib/packages/queries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
@@ -43,9 +46,7 @@ interface Props {
 export default async function AdminApplicationsPage({ searchParams }: Props) {
   const locale = readLocaleFromCookie();
   const t = (en: string, ar: string) => (locale === "ar" ? ar : en);
-  const filter = (searchParams.status ?? "new") as
-    | "all"
-    | ApplicationStatus;
+  const filter = (searchParams.status ?? "new") as "all" | ApplicationStatus;
   const packageFilter = searchParams.package_id ?? null;
 
   const [applications, counts, packages] = await Promise.all([
@@ -86,8 +87,12 @@ export default async function AdminApplicationsPage({ searchParams }: Props) {
       <div className="flex flex-wrap items-center gap-2">
         {FILTERS.map((s) => {
           const isActive = filter === s;
-          const count = s === "all" ? undefined : counts[s as ApplicationStatus];
-          const label = s === "all" ? t("All", "الكل") : STATUS_LABEL[s as ApplicationStatus][locale];
+          const count =
+            s === "all" ? undefined : counts[s as ApplicationStatus];
+          const label =
+            s === "all"
+              ? t("All", "الكل")
+              : STATUS_LABEL[s as ApplicationStatus][locale];
           return (
             <Link
               key={s}
@@ -122,19 +127,34 @@ export default async function AdminApplicationsPage({ searchParams }: Props) {
         <CardContent>
           {applications.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              {t("No applications match this filter.", "مفيش طلبات في الفلتر ده.")}
+              {t(
+                "No applications match this filter.",
+                "مفيش طلبات في الفلتر ده.",
+              )}
             </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[720px] text-sm">
                 <thead>
                   <tr className="border-b border-border/60 text-start text-xs uppercase tracking-wider text-muted-foreground">
-                    <th className="py-2 pe-3 text-start">{t("Name", "الاسم")}</th>
-                    <th className="py-2 pe-3 text-start">{t("Contact", "التواصل")}</th>
-                    <th className="py-2 pe-3 text-start">{t("Goal", "الهدف")}</th>
-                    <th className="py-2 pe-3 text-start">{t("Package", "الباقة")}</th>
-                    <th className="py-2 pe-3 text-start">{t("Status", "الحالة")}</th>
-                    <th className="py-2 pe-3 text-start">{t("Submitted", "تاريخ التقديم")}</th>
+                    <th className="py-2 pe-3 text-start">
+                      {t("Name", "الاسم")}
+                    </th>
+                    <th className="py-2 pe-3 text-start">
+                      {t("Contact", "التواصل")}
+                    </th>
+                    <th className="py-2 pe-3 text-start">
+                      {t("Goal", "الهدف")}
+                    </th>
+                    <th className="py-2 pe-3 text-start">
+                      {t("Package", "الباقة")}
+                    </th>
+                    <th className="py-2 pe-3 text-start">
+                      {t("Status", "الحالة")}
+                    </th>
+                    <th className="py-2 pe-3 text-start">
+                      {t("Submitted", "تاريخ التقديم")}
+                    </th>
                     <th className="py-2"></th>
                   </tr>
                 </thead>
@@ -148,9 +168,7 @@ export default async function AdminApplicationsPage({ searchParams }: Props) {
                         key={a.id}
                         className="border-b border-border/30 last:border-0"
                       >
-                        <td className="py-3 pe-3 font-medium">
-                          {a.full_name}
-                        </td>
+                        <td className="py-3 pe-3 font-medium">{a.full_name}</td>
                         <td className="py-3 pe-3 text-muted-foreground">
                           <div>{a.email}</div>
                           <div className="text-xs">{a.phone}</div>
