@@ -8,6 +8,10 @@ import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
 import { formatDate } from "@/lib/utils";
 import { ApplicationStatusControl } from "@/components/admin/applications/application-status-control";
 import { ApplicationNotesEditor } from "@/components/admin/applications/application-notes-editor";
+import {
+  buildWhatsappLink,
+  paymentInstructionsMessage,
+} from "@/lib/whatsapp/templates";
 import type { ApplicationStatus } from "@/types/database";
 
 export const dynamic = "force-dynamic";
@@ -61,6 +65,19 @@ export default async function AdminApplicationDetailPage({ params }: Props) {
   const whatsappHref = `https://wa.me/${phoneDigits}`;
   const phoneHref = `tel:${application.phone}`;
   const emailHref = `mailto:${application.email}`;
+
+  // Pre-built "send Vodafone Cash instructions" WhatsApp deep link.
+  const instructionsMsg = paymentInstructionsMessage({
+    clientName: application.full_name,
+    amount: pkg?.price ?? 0,
+    currency: pkg?.currency ?? "EGP",
+    packageName: pkg ? (locale === "ar" ? pkg.name_ar : pkg.name_en) : null,
+    locale,
+  });
+  const whatsappPaymentHref = buildWhatsappLink(
+    application.phone,
+    instructionsMsg,
+  );
 
   return (
     <div className="space-y-6">
@@ -378,6 +395,34 @@ export default async function AdminApplicationDetailPage({ params }: Props) {
               </CardContent>
             </Card>
           )}
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">
+                {t("Payment", "الدفع")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              <a
+                href={whatsappPaymentHref}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+              >
+                <MessageSquare className="h-4 w-4" />
+                {t(
+                  "Send Vodafone Cash instructions",
+                  "ابعت تعليمات فودافون كاش",
+                )}
+              </a>
+              <Link
+                href={`/admin/payments/new?application_id=${application.id}${pkg ? `&package_id=${pkg.id}` : ""}`}
+                className="block w-full rounded-md border border-border px-3 py-2 text-center text-sm font-medium hover:bg-card/70"
+              >
+                {t("Record payment", "تسجيل دفعة")}
+              </Link>
+            </CardContent>
+          </Card>
 
           <Card>
             <CardHeader>

@@ -11,11 +11,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { submitCoachingApplication } from "@/lib/applications/actions";
 import type { Locale } from "@/lib/i18n/config";
 import type { Package } from "@/types/database";
+import { TurnstileWidget } from "./turnstile-widget";
 
 interface Props {
   locale: Locale;
   packages: Package[];
   initialPackageId?: string;
+  turnstileSiteKey?: string;
 }
 
 type StepId =
@@ -146,7 +148,12 @@ const EMPTY: FormState = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function ApplyForm({ locale, packages, initialPackageId }: Props) {
+export function ApplyForm({
+  locale,
+  packages,
+  initialPackageId,
+  turnstileSiteKey,
+}: Props) {
   const router = useRouter();
   const t = (en: string, ar: string) => (locale === "ar" ? ar : en);
   const [step, setStep] = useState<StepId>("contact");
@@ -156,6 +163,7 @@ export function ApplyForm({ locale, packages, initialPackageId }: Props) {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isPending, startTransition] = useTransition();
+  const [captchaToken, setCaptchaToken] = useState<string>("");
 
   const stepIndex = STEPS.findIndex((s) => s.id === step);
 
@@ -211,6 +219,12 @@ export function ApplyForm({ locale, packages, initialPackageId }: Props) {
       setStep("contact");
       return;
     }
+    if (turnstileSiteKey && !captchaToken) {
+      toast.error(
+        t("Please complete the CAPTCHA.", "برجاء تأكيد أنك لست روبوت."),
+      );
+      return;
+    }
     startTransition(async () => {
       const payload: Record<string, string> = {};
       (Object.keys(state) as (keyof FormState)[]).forEach((k) => {
@@ -222,6 +236,7 @@ export function ApplyForm({ locale, packages, initialPackageId }: Props) {
         }
       });
       payload.locale = locale;
+      if (captchaToken) payload.captcha_token = captchaToken;
       const res = await submitCoachingApplication(payload);
       if (res.ok) {
         toast.success(t("Application submitted!", "تم إرسال طلبك!"));
@@ -681,6 +696,14 @@ export function ApplyForm({ locale, packages, initialPackageId }: Props) {
               "بإرسال الطلب أنت توافق إن الكوتش يتواصل معاك على الوسيلة اللي اخترتها.",
             )}
           </p>
+          {turnstileSiteKey && (
+            <div className="mt-4">
+              <TurnstileWidget
+                siteKey={turnstileSiteKey}
+                onToken={setCaptchaToken}
+              />
+            </div>
+          )}
         </Section>
       )}
 
