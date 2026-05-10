@@ -1,0 +1,45 @@
+{
+  "app": {
+    "name": "Coaching Platform",
+    "tagline": "Personalized coaching, smart nutrition, and daily accountability."
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "workouts": "Workouts",
+    "nutrition": "Nutrition",
+    "progress": "Progress",
+    "checkin": "Check-in",
+    "clients": "Clients",
+    "cms": "Site Content",
+    "logout": "Log out"
+  },
+  "auth": {
+    "login_title": "Welcome back",
+    "login_subtitle": "Log in to continue your journey.",
+    "email": "Email",
+    "password": "Password",
+    "login": "Log in",
+    "logging_in": "Logging in…",
+    "no_account": "New here?",
+    "signup_link": "Create an account",
+    "signup_title": "Create your account",
+    "signup_subtitle": "Start your transformation today.",
+    "full_name": "Full name",
+    "signup": "Sign up",
+    "signing_up": "Creating account…",
+    "have_account": "Already have an account?",
+    "login_link": "Log in",
+    "logout": "Log out",
+    "invalid_credentials": "Invalid email or password.",
+    "signup_success": "Account created. Check your email to confirm."
+  },
+  "common": {
+    "language": "Language",
+    "theme": "Theme",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading…",
+    "error_generic": "Something went wrong. Please try again."
+  }
+}
