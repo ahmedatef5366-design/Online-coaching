@@ -41,9 +41,7 @@ export function HowItWorksEditor({ initial, locale }: Props) {
             index={idx}
             total={steps.length}
             locale={locale}
-            title={
-              step.title_en || t(`Step ${idx + 1}`, `خطوة ${idx + 1}`)
-            }
+            title={step.title_en || t(`Step ${idx + 1}`, `خطوة ${idx + 1}`)}
             onMoveUp={() => f.patch("steps", arrayMove(steps, idx, idx - 1))}
             onMoveDown={() => f.patch("steps", arrayMove(steps, idx, idx + 1))}
             onRemove={() =>

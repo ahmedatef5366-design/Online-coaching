@@ -202,8 +202,7 @@ export const SECTION_DEFAULTS: SectionContentMap = {
     headline_ar: "جاهز تبدأ؟",
     subheadline_en:
       "Stop guessing. Get a plan that fits your life and a coach who actually pays attention.",
-    subheadline_ar:
-      "بطّل تخمين. احصل على خطة تناسب حياتك وكوتش بيتابعك فعلاً.",
+    subheadline_ar: "بطّل تخمين. احصل على خطة تناسب حياتك وكوتش بيتابعك فعلاً.",
     cta_text_en: "Sign up now",
     cta_text_ar: "سجّل دلوقتي",
   },

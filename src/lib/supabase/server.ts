@@ -10,27 +10,23 @@ import {
 export function createClient() {
   const cookieStore = cookies();
 
-  return createServerClient(
-    getSupabaseUrl(),
-    getSupabasePublishableKey(),
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
-            );
-          } catch {
-            // Called from a Server Component — cookie writes are safely
-            // ignored here; middleware refreshes the session for us.
-          }
-        },
+  return createServerClient(getSupabaseUrl(), getSupabasePublishableKey(), {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options),
+          );
+        } catch {
+          // Called from a Server Component — cookie writes are safely
+          // ignored here; middleware refreshes the session for us.
+        }
       },
     },
-  );
+  });
 }
 
 /**
@@ -39,14 +35,10 @@ export function createClient() {
  * could be invoked by an untrusted user without authorization checks.
  */
 export function createServiceClient() {
-  return createSupabaseClient(
-    getSupabaseUrl(),
-    getSupabaseServiceRoleKey(),
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
+  return createSupabaseClient(getSupabaseUrl(), getSupabaseServiceRoleKey(), {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
     },
-  );
+  });
 }

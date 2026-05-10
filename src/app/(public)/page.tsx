@@ -92,7 +92,9 @@ export default async function LandingPage() {
           )}
           <div className="container relative flex min-h-[80vh] flex-col items-start justify-center gap-6 py-24">
             <p className="rounded-full border border-border bg-card px-3 py-1 text-xs uppercase tracking-widest text-muted-foreground">
-              {locale === "ar" ? "كوتشينج أونلاين · شخصي" : "Online coaching · 1-on-1"}
+              {locale === "ar"
+                ? "كوتشينج أونلاين · شخصي"
+                : "Online coaching · 1-on-1"}
             </p>
             <h1 className="max-w-3xl font-display text-5xl font-extrabold leading-[1.05] tracking-tight md:text-7xl">
               {pickLocaleText(hero, "headline", locale) ||
@@ -106,7 +108,8 @@ export default async function LandingPage() {
                 href="/signup"
                 className="rounded-md bg-primary px-6 py-3 text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
               >
-                {pickLocaleText(hero, "cta_text", locale) || "Start your journey"}
+                {pickLocaleText(hero, "cta_text", locale) ||
+                  "Start your journey"}
               </Link>
               <Link
                 href="#how-it-works"
@@ -167,7 +170,7 @@ export default async function LandingPage() {
                     key={`${title}-${i}`}
                     className="rounded-xl border border-border bg-card/60 p-6"
                   >
-                    <div className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold">
+                    <div className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary font-bold text-primary-foreground">
                       {i + 1}
                     </div>
                     <h3 className="mb-1 text-lg font-semibold">{title}</h3>
@@ -256,7 +259,9 @@ export default async function LandingPage() {
         <section className="border-t border-border/60 bg-card/30 py-16">
           <div className="container">
             <h2 className="mb-10 font-display text-3xl font-bold md:text-4xl">
-              {locale === "ar" ? "اختر الخطة المناسبة" : "Pick the plan that fits"}
+              {locale === "ar"
+                ? "اختر الخطة المناسبة"
+                : "Pick the plan that fits"}
             </h2>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {pricing.tiers.map((tier, i) => {

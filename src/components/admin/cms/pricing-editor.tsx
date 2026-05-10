@@ -87,7 +87,10 @@ export function PricingEditor({ initial, locale }: Props) {
             <LabeledField
               className="md:col-span-2"
               kind="textarea"
-              label={t("Features (one per line, English)", "المميزات (سطر لكل ميزة، إنجليزي)")}
+              label={t(
+                "Features (one per line, English)",
+                "المميزات (سطر لكل ميزة، إنجليزي)",
+              )}
               value={tier.features_en}
               onChange={(v) => update(idx, { ...tier, features_en: v })}
               rows={4}
@@ -95,7 +98,10 @@ export function PricingEditor({ initial, locale }: Props) {
             <LabeledField
               className="md:col-span-2"
               kind="textarea"
-              label={t("Features (one per line, Arabic)", "المميزات (سطر لكل ميزة، عربي)")}
+              label={t(
+                "Features (one per line, Arabic)",
+                "المميزات (سطر لكل ميزة، عربي)",
+              )}
               value={tier.features_ar}
               onChange={(v) => update(idx, { ...tier, features_ar: v })}
               rows={4}

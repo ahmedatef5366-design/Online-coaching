@@ -56,7 +56,10 @@ export function HeroEditor({ initial, locale }: Props) {
         />
         <LabeledField
           className="md:col-span-2"
-          label={t("Background image URL (optional)", "رابط صورة الخلفية (اختياري)")}
+          label={t(
+            "Background image URL (optional)",
+            "رابط صورة الخلفية (اختياري)",
+          )}
           type="url"
           value={f.state.background_url}
           onChange={(v) => f.patch("background_url", v)}
