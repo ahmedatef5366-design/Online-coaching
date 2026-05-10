@@ -16,6 +16,9 @@ import {
 } from "@/lib/nutrition/queries";
 import { getTodaysCheckin } from "@/lib/tracking/queries";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
+import { computeSubscriptionSnapshot } from "@/lib/subscription/status";
+import { SubscriptionBanner } from "@/components/client/subscription-banner";
+import type { SubscriptionStatus } from "@/types/database";
 
 type NameRow = { full_name: string | null } | null;
 
@@ -32,10 +35,25 @@ export default async function ClientDashboardPage() {
       .select("full_name")
       .eq("id", user!.id)
       .maybeSingle(),
-    supabase.from("clients").select("id").eq("user_id", user!.id).maybeSingle(),
+    supabase
+      .from("clients")
+      .select("id, subscription_status, subscription_ends_at")
+      .eq("user_id", user!.id)
+      .maybeSingle(),
   ]);
   const profile = profileResult.data as NameRow;
-  const clientRow = clientResult.data as { id: string } | null;
+  const clientRow = clientResult.data as {
+    id: string;
+    subscription_status: SubscriptionStatus;
+    subscription_ends_at: string | null;
+  } | null;
+
+  const subscription = clientRow
+    ? computeSubscriptionSnapshot({
+        status: clientRow.subscription_status,
+        subscription_ends_at: clientRow.subscription_ends_at,
+      })
+    : null;
 
   const locale = readLocaleFromCookie();
   const today = new Date().toISOString().slice(0, 10);
@@ -60,6 +78,10 @@ export default async function ClientDashboardPage() {
           {profile?.full_name ?? (locale === "ar" ? "بطل" : "athlete")}
         </h1>
       </div>
+
+      {subscription ? (
+        <SubscriptionBanner snapshot={subscription} locale={locale} />
+      ) : null}
 
       <Card>
         <CardHeader>
@@ -156,6 +178,38 @@ export default async function ClientDashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">
+            {locale === "ar" ? "اشتراكي" : "Subscription"}
+          </CardTitle>
+          <CardDescription>
+            {subscription && subscription.endsAt
+              ? locale === "ar"
+                ? subscription.daysRemaining !== null &&
+                  subscription.daysRemaining >= 0
+                  ? `ينتهي بعد ${subscription.daysRemaining} يوم`
+                  : "منتهي"
+                : subscription.daysRemaining !== null &&
+                    subscription.daysRemaining >= 0
+                  ? `Ends in ${subscription.daysRemaining} days`
+                  : "Expired"
+              : locale === "ar"
+                ? "عرض حالة الاشتراك والدفعات."
+                : "View subscription status & payment history."}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Link
+            href="/client/subscription"
+            className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+          >
+            {locale === "ar" ? "افتح" : "Open"}
+            <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+          </Link>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, Syne } from "next/font/google";
 import "./globals.css";
 import { I18nProvider } from "@/components/i18n-provider";
 import { ToastProvider } from "@/components/ui/toast-provider";
+import { PlausibleAnalytics } from "@/components/analytics/plausible";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
 import { dirFor } from "@/lib/i18n/config";
 import {
@@ -77,6 +78,7 @@ export default function RootLayout({
       <body>
         <I18nProvider locale={locale}>{children}</I18nProvider>
         <ToastProvider />
+        <PlausibleAnalytics />
       </body>
     </html>
   );

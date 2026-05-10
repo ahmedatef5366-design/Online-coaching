@@ -234,3 +234,74 @@ moves the needle:
 
 Total: ~7 hours of work for a meaningful jump in trustworthiness +
 observability + spam protection.
+
+
+
+---
+
+## Update — May 2026 (delivered in `feat/payments-and-lifecycle`)
+
+The following items from the gap list are **now shipped**:
+
+### ✅ Payments (without a payment gateway)
+No Stripe / Paymob. Clients pay offline via **Vodafone Cash** (or
+InstaPay / bank transfer / cash) directly to the coach. The platform now
+tracks payments manually:
+
+- Migration `0010_payments_and_subscriptions.sql` adds a `payments`
+  table and `clients.subscription_*` lifecycle columns, plus an
+  RPC helper `recompute_client_subscription(target_client)` that
+  rolls up the latest confirmed payment into the client's status.
+- `/admin/payments` — list with filter pills + stat cards (pending,
+  confirmed this month, revenue this/lifetime).
+- `/admin/payments/new` — admin records a receipt; picking a package
+  prefills amount + duration; subscription end date is auto-computed.
+  Tick-box to "confirm now & activate the subscription" in one step.
+- `/admin/payments/[paymentId]` — confirm, reject, or delete. Rejecting
+  takes a reason and appends it to the notes.
+- **Subscription gate** in middleware (`src/lib/supabase/middleware.ts`)
+  — clients whose subscription is `expired` or `suspended` are redirected
+  to `/client/subscription` and can't reach workouts/nutrition/etc until
+  the coach confirms a new payment.
+- **Client subscription page** (`/client/subscription`) — status, days
+  remaining, payment history. RLS allows clients to read their own
+  payments rows.
+
+### ✅ WhatsApp integration (deep links, no Business API yet)
+- `src/lib/whatsapp/templates.ts` — `paymentInstructionsMessage`,
+  `welcomeMessage`, `renewalReminderMessage`, `buildWhatsappLink`.
+  Coach details come from env: `NEXT_PUBLIC_COACH_VODAFONE_NUMBER`,
+  `NEXT_PUBLIC_COACH_NAME`.
+- Application detail page has a one-click **"Send Vodafone Cash
+  instructions"** button that opens WhatsApp with the payment message
+  pre-filled.
+- Pending payments detail page has the same deep link.
+
+### ✅ Restored migration `0007`
+Was missing from the tree (numbering jumped 0006 → 0008). The new
+`0007_client_admin_metadata.sql` adds `clients.phone`, `whatsapp_phone`,
+`coach_notes`, and `is_archived`. Safe to re-run on any project state.
+
+### ✅ CAPTCHA on `/apply`
+- `src/components/apply/turnstile-widget.tsx` renders the Cloudflare
+  Turnstile widget when `NEXT_PUBLIC_TURNSTILE_SITE_KEY` is configured.
+- `src/lib/security/turnstile.ts` verifies the token server-side against
+  `TURNSTILE_SECRET_KEY` and short-circuits `submitCoachingApplication`
+  on failure. When the env isn't configured (dev), verification is
+  skipped.
+
+### ✅ Plausible analytics
+- `src/components/analytics/plausible.tsx` injects the Plausible script
+  when `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` is set. No script, no cookies, no
+  network call otherwise.
+
+### ✅ CI/CD
+- `.github/workflows/ci.yml` runs lint / typecheck / unit tests / build
+  on every push and PR against `main`.
+
+### ❌ Intentionally NOT done in this pass
+- **Transactional email** (Resend). Product decision: payment + onboarding
+  is fully manual / WhatsApp-based for now; emails can be added later
+  without touching the payments model.
+- Online payment gateways (Stripe / Paymob / Fawry). Not needed for the
+  coach's current market.

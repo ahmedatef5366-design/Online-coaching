@@ -45,6 +45,24 @@ export type ActivityLevel =
 export type TrainingLocation = "home" | "gym" | "both";
 export type ContactMethod = "whatsapp" | "phone" | "email";
 export type Gender = "male" | "female" | "other";
+export type PaymentStatus =
+  | "pending"
+  | "confirmed"
+  | "rejected"
+  | "refunded";
+export type PaymentMethod =
+  | "vodafone_cash"
+  | "instapay"
+  | "bank_transfer"
+  | "cash"
+  | "other";
+export type SubscriptionStatus =
+  | "none"
+  | "trialing"
+  | "active"
+  | "expiring_soon"
+  | "expired"
+  | "suspended";
 
 export interface Profile {
   id: string;
@@ -67,6 +85,17 @@ export interface Client {
   health_notes: string | null;
   start_date: string | null;
   target_date: string | null;
+  // 0007 admin metadata
+  phone: string | null;
+  whatsapp_phone: string | null;
+  coach_notes: string | null;
+  is_archived: boolean;
+  // 0010 subscription lifecycle
+  subscription_status: SubscriptionStatus;
+  subscription_starts_at: string | null;
+  subscription_ends_at: string | null;
+  last_payment_at: string | null;
+  last_payment_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -306,6 +335,29 @@ export interface CoachingApplication {
   updated_at: string;
 }
 
+export interface Payment {
+  id: string;
+  client_id: string | null;
+  application_id: string | null;
+  package_id: string | null;
+  amount: number;
+  currency: string;
+  method: PaymentMethod;
+  reference_number: string | null;
+  sender_phone: string | null;
+  receipt_url: string | null;
+  period_start: string | null;
+  period_end: string | null;
+  duration_days: number | null;
+  status: PaymentStatus;
+  paid_at: string | null;
+  confirmed_at: string | null;
+  confirmed_by: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 type TableShape<R, I, U> = {
   Row: R;
   Insert: I;
@@ -425,6 +477,11 @@ export interface Database {
           Pick<CoachingApplication, "full_name" | "email" | "phone">,
         Partial<CoachingApplication>
       >;
+      payments: TableShape<
+        Payment,
+        Partial<Payment> & Pick<Payment, "amount">,
+        Partial<Payment>
+      >;
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -440,6 +497,9 @@ export interface Database {
       training_location: TrainingLocation;
       contact_method: ContactMethod;
       gender: Gender;
+      payment_status: PaymentStatus;
+      payment_method: PaymentMethod;
+      subscription_status: SubscriptionStatus;
     };
     CompositeTypes: Record<string, never>;
   };

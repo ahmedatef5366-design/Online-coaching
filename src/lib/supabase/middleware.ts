@@ -1,13 +1,22 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabasePublishableKey, getSupabaseUrl } from "./env";
-import type { UserRole } from "@/types/database";
+import { computeSubscriptionSnapshot } from "@/lib/subscription/status";
+import type { SubscriptionStatus, UserRole } from "@/types/database";
 
 type ProfileRoleRow = { role: UserRole } | null;
+type ClientSubscriptionRow = {
+  subscription_status: SubscriptionStatus;
+  subscription_ends_at: string | null;
+} | null;
 
 const PUBLIC_PATHS = ["/", "/login", "/signup", "/api/auth"];
 const ADMIN_PREFIX = "/admin";
 const CLIENT_PREFIX = "/client";
+/** Paths a suspended/expired client is allowed to reach inside /client. */
+const CLIENT_ALLOWLIST_WHEN_SUSPENDED = [
+  "/client/subscription",
+];
 
 function isPublicPath(pathname: string) {
   if (pathname.startsWith("/_next")) return true;
@@ -76,6 +85,38 @@ export async function updateSession(request: NextRequest) {
       const url = request.nextUrl.clone();
       url.pathname = role === "admin" ? "/admin/dashboard" : "/login";
       return NextResponse.redirect(url);
+    }
+
+    // Subscription gate — clients whose subscription is expired or
+    // admin-suspended can only see their subscription page. The nightly
+    // cron (or RPC on payment confirm) keeps subscription_status fresh;
+    // as a belt-and-braces check we also recompute from the end date
+    // client-side so a freshly-expired row redirects immediately even
+    // before the cron runs.
+    if (
+      pathname.startsWith(CLIENT_PREFIX) &&
+      role === "client" &&
+      !CLIENT_ALLOWLIST_WHEN_SUSPENDED.some(
+        (p) => pathname === p || pathname.startsWith(`${p}/`),
+      )
+    ) {
+      const { data: clientRow } = (await supabase
+        .from("clients")
+        .select("subscription_status, subscription_ends_at")
+        .eq("user_id", user.id)
+        .maybeSingle()) as { data: ClientSubscriptionRow };
+
+      if (clientRow) {
+        const snap = computeSubscriptionSnapshot({
+          status: clientRow.subscription_status,
+          subscription_ends_at: clientRow.subscription_ends_at,
+        });
+        if (snap.status === "expired" || snap.status === "suspended") {
+          const url = request.nextUrl.clone();
+          url.pathname = "/client/subscription";
+          return NextResponse.redirect(url);
+        }
+      }
     }
   }
 

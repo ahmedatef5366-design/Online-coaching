@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { assertAdmin } from "@/lib/auth/admin-guard";
 import { checkRateLimit, rateLimitMessage } from "@/lib/security/rate-limit";
+import { verifyTurnstileToken } from "@/lib/security/turnstile";
 import {
   sendApplicationAcceptedEmail,
   sendApplicationReceivedEmail,
@@ -134,6 +135,21 @@ export async function submitCoachingApplication(
   if (!rl.ok) {
     const locale = asText(raw.locale) === "ar" ? "ar" : "en";
     return { ok: false, error: rateLimitMessage(rl.retryAt, locale) };
+  }
+
+  // Verify Turnstile CAPTCHA if configured. Locale-aware error messages
+  // make failures explicable to Arabic speakers.
+  const captchaToken = asText(raw.captcha_token);
+  const captcha = await verifyTurnstileToken(captchaToken, ip);
+  if (!captcha.ok) {
+    const locale = asText(raw.locale) === "ar" ? "ar" : "en";
+    return {
+      ok: false,
+      error:
+        locale === "ar"
+          ? "فشل التحقق من أنك لست روبوت. حاول تاني."
+          : "CAPTCHA verification failed. Please try again.",
+    };
   }
 
   const fullName = asTextRequired(raw.full_name);

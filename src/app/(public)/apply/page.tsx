@@ -53,6 +53,7 @@ export default async function ApplyPage({ searchParams }: Props) {
           locale={locale}
           packages={packages}
           initialPackageId={initialPackageId}
+          turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? ""}
         />
       </Suspense>
     </div>

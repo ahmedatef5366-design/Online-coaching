@@ -12,6 +12,7 @@ import {
   Settings,
   Package,
   Inbox,
+  CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -24,9 +25,13 @@ interface SidebarItem {
 
 interface Props {
   newApplicationsCount?: number;
+  pendingPaymentsCount?: number;
 }
 
-export function AdminSidebar({ newApplicationsCount = 0 }: Props) {
+export function AdminSidebar({
+  newApplicationsCount = 0,
+  pendingPaymentsCount = 0,
+}: Props) {
   const pathname = usePathname();
   const items: SidebarItem[] = [
     { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -37,6 +42,12 @@ export function AdminSidebar({ newApplicationsCount = 0 }: Props) {
       badge: newApplicationsCount,
     },
     { href: "/admin/clients", label: "Clients", icon: Users },
+    {
+      href: "/admin/payments",
+      label: "Payments",
+      icon: CreditCard,
+      badge: pendingPaymentsCount,
+    },
     { href: "/admin/messages", label: "Messages", icon: MessageCircle },
     { href: "/admin/reports", label: "Reports", icon: BarChart3 },
     { href: "/admin/nutrition", label: "Nutrition", icon: Apple },
