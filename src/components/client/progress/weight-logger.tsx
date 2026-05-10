@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
+  Legend,
   Line,
   LineChart,
   ResponsiveContainer,
@@ -22,6 +23,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { logWeight } from "@/lib/tracking/actions";
+import { withRollingAverage } from "@/lib/tracking/rolling-average";
 import type { WeightLogRow } from "@/types/database";
 import type { Locale } from "@/lib/i18n/config";
 
@@ -50,10 +52,12 @@ export function WeightLogger({ locale, weights }: Props) {
 
   const chartData = useMemo(
     () =>
-      [...weights].reverse().map((w) => ({
-        date: w.log_date.slice(5),
-        weight: Number(w.weight_kg),
-      })),
+      withRollingAverage(
+        [...weights].reverse().map((w) => ({
+          date: w.log_date.slice(5),
+          weight: Number(w.weight_kg),
+        })),
+      ),
     [weights],
   );
 
@@ -149,12 +153,24 @@ export function WeightLogger({ locale, weights }: Props) {
                     fontSize: 12,
                   }}
                 />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
                 <Line
+                  name={locale === "ar" ? "الوزن" : "Weight"}
                   type="monotone"
                   dataKey="weight"
                   stroke="hsl(var(--primary))"
                   strokeWidth={2}
                   dot={{ r: 3 }}
+                />
+                <Line
+                  name={locale === "ar" ? "متوسط ٧ أيام" : "7-day avg"}
+                  type="monotone"
+                  dataKey="avg"
+                  stroke="hsl(var(--muted-foreground))"
+                  strokeWidth={2}
+                  strokeDasharray="4 4"
+                  dot={false}
+                  connectNulls
                 />
               </LineChart>
             </ResponsiveContainer>

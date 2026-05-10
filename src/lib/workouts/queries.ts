@@ -108,6 +108,36 @@ export async function getDayWithExercises(
   return { day, exercises: exercises ?? [] };
 }
 
+/** Plan-level coach notes for the plan that owns this day. Used by the
+ *  client day page so the client sees the "attention" callout while
+ *  training. Returns null fields when no plan is found. */
+export async function getPlanNotesForDay(dayId: string): Promise<{
+  general_notes: string | null;
+  attention_notes: string | null;
+}> {
+  const supabase = createClient();
+  const { data: day } = (await supabase
+    .from("workout_days")
+    .select("plan_id")
+    .eq("id", dayId)
+    .maybeSingle()) as { data: { plan_id: string } | null };
+  if (!day) return { general_notes: null, attention_notes: null };
+  const { data: plan } = (await supabase
+    .from("workout_plans")
+    .select("general_notes, attention_notes")
+    .eq("id", day.plan_id)
+    .maybeSingle()) as {
+    data: {
+      general_notes: string | null;
+      attention_notes: string | null;
+    } | null;
+  };
+  return {
+    general_notes: plan?.general_notes ?? null,
+    attention_notes: plan?.attention_notes ?? null,
+  };
+}
+
 /** Workout logs for a client on one calendar date, optionally scoped to a
  *  set of exercise IDs (the day's exercises). */
 export async function getWorkoutLogsForDate(

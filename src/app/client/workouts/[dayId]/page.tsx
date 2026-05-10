@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { AlertTriangle, ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import {
   getDayWithExercises,
+  getPlanNotesForDay,
   getWorkoutLogsForDate,
 } from "@/lib/workouts/queries";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
@@ -16,7 +17,10 @@ export default async function ClientWorkoutDayPage({
 }: {
   params: { dayId: string };
 }) {
-  const dayData = await getDayWithExercises(params.dayId);
+  const [dayData, planNotes] = await Promise.all([
+    getDayWithExercises(params.dayId),
+    getPlanNotesForDay(params.dayId),
+  ]);
   if (!dayData) notFound();
   const locale = readLocaleFromCookie();
 
@@ -55,6 +59,23 @@ export default async function ClientWorkoutDayPage({
           {dayData.day.day_name}
         </h1>
       </div>
+
+      {planNotes.attention_notes ? (
+        <div
+          className="flex items-start gap-3 rounded-xl border border-yellow-500/40 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-200"
+          role="note"
+        >
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
+          <div className="space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-wider">
+              {locale === "ar" ? "لازم تخلي بالك" : "Heads up"}
+            </p>
+            <p className="whitespace-pre-wrap leading-relaxed">
+              {planNotes.attention_notes}
+            </p>
+          </div>
+        </div>
+      ) : null}
 
       <WorkoutSession
         locale={locale}

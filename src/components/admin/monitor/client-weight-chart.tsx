@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Legend,
   Line,
   LineChart,
   ResponsiveContainer,
@@ -9,6 +10,7 @@ import {
   YAxis,
 } from "recharts";
 import type { WeightLogRow } from "@/types/database";
+import { withRollingAverage } from "@/lib/tracking/rolling-average";
 
 export function ClientWeightChart({ weights }: { weights: WeightLogRow[] }) {
   if (weights.length < 2) {
@@ -18,9 +20,11 @@ export function ClientWeightChart({ weights }: { weights: WeightLogRow[] }) {
       </p>
     );
   }
-  const data = [...weights]
-    .reverse()
-    .map((w) => ({ date: w.log_date.slice(5), weight: Number(w.weight_kg) }));
+  const data = withRollingAverage(
+    [...weights]
+      .reverse()
+      .map((w) => ({ date: w.log_date.slice(5), weight: Number(w.weight_kg) })),
+  );
   return (
     <div className="h-56 w-full">
       <ResponsiveContainer width="100%" height="100%">
@@ -37,12 +41,24 @@ export function ClientWeightChart({ weights }: { weights: WeightLogRow[] }) {
               fontSize: 12,
             }}
           />
+          <Legend wrapperStyle={{ fontSize: 11 }} />
           <Line
+            name="Weight"
             type="monotone"
             dataKey="weight"
             stroke="hsl(var(--primary))"
             strokeWidth={2}
             dot={{ r: 3 }}
+          />
+          <Line
+            name="7-day avg"
+            type="monotone"
+            dataKey="avg"
+            stroke="hsl(var(--muted-foreground))"
+            strokeWidth={2}
+            strokeDasharray="4 4"
+            dot={false}
+            connectNulls
           />
         </LineChart>
       </ResponsiveContainer>

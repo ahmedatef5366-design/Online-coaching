@@ -86,6 +86,27 @@ export async function renamePlan(
   return { ok: true };
 }
 
+export async function updatePlanNotes(
+  planId: string,
+  clientId: string,
+  generalNotes: string,
+  attentionNotes: string,
+): Promise<ActionResult> {
+  const guard = await assertAdmin();
+  if (!guard.ok) return { ok: false, error: guard.error };
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("workout_plans")
+    .update({
+      general_notes: asText(generalNotes),
+      attention_notes: asText(attentionNotes),
+    })
+    .eq("id", planId);
+  if (error) return { ok: false, error: error.message };
+  revalidatePlanPaths(clientId);
+  return { ok: true };
+}
+
 // ---------------------------------------------------------------------------
 // Day
 // ---------------------------------------------------------------------------

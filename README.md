@@ -3,10 +3,11 @@
 A full-stack online coaching platform: a public CMS-driven landing page,
 an admin dashboard for coaches, and a mobile-first client portal.
 
-> **Status:** Phase 3 — client management + workout plan builder + client
-> set logger with rest timer are live. Earlier phases (foundation, CMS
-> landing page) ship as the first two PRs. Nutrition, body tracking,
-> check-ins, and monitoring follow in Phases 4–6.
+> **Status:** Phases 1–7 are live: foundation, CMS-driven landing page,
+> client management + workout plan builder, nutrition (fixed + flexible
+> IIFYM), body tracking + progress photos + daily check-ins, polish, and
+> coach notes (plan-level general + attention) with YouTube video
+> embeds and a 7-day rolling-average overlay on the weight chart.
 
 ## Tech stack
 
@@ -49,6 +50,8 @@ the SQL editor in the Supabase dashboard:
 2. `0002_rls.sql` — row-level security policies
 3. `0003_seed_food_db.sql` — starter food database
 4. `0004_seed_site_content.sql` — default landing-page CMS content
+5. `0005_progress_photos_storage.sql` — private photos bucket + policies
+6. `0006_workout_plan_coach_notes.sql` — plan-level coach notes columns
 
 ### 4. Create your admin user
 
@@ -130,3 +133,4 @@ messages/
 - **Phase 4** — Nutrition (fixed + flexible IIFYM) + food database UI.
 - **Phase 5** — Body measurements, weight log, progress photos, daily check-in, admin monitoring dashboard with charts.
 - **Phase 6** — Polish: animations, mobile niceties, notifications, weekly summary email.
+- **Phase 7** — Coach plan-level notes (general + attention callout), YouTube video embeds in the client workout, and a 7-day rolling-average overlay on the weight chart.
