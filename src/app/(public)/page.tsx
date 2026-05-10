@@ -112,7 +112,7 @@ export default async function LandingPage() {
             </Reveal>
             <Reveal delay={0.15} className="flex flex-wrap items-center gap-3">
               <Link
-                href="/signup"
+                href="/login"
                 className="rounded-md bg-primary px-6 py-3 text-base font-semibold text-primary-foreground transition-all hover:scale-[1.02] hover:bg-primary/90"
               >
                 {pickLocaleText(hero, "cta_text", locale) ||
@@ -298,7 +298,7 @@ export default async function LandingPage() {
                         ))}
                     </ul>
                     <Link
-                      href="/signup"
+                      href="/login"
                       className="mt-2 rounded-md bg-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground"
                     >
                       {locale === "ar" ? "ابدأ" : "Get started"}
@@ -322,7 +322,7 @@ export default async function LandingPage() {
               {pickLocaleText(ctaFooter, "subheadline", locale)}
             </p>
             <Link
-              href="/signup"
+              href="/login"
               className="rounded-md bg-primary px-6 py-3 font-semibold text-primary-foreground"
             >
               {pickLocaleText(ctaFooter, "cta_text", locale) || "Sign up now"}

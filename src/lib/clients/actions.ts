@@ -102,23 +102,19 @@ export async function createNewClient(
       user_metadata: { full_name: fullName, role: "client" },
     });
 
-  let userId: string | undefined = created?.user?.id;
-  if (
-    createErr &&
-    !/already.*registered|already.*exists/i.test(createErr.message)
-  ) {
+  if (createErr) {
+    if (/already.*registered|already.*exists/i.test(createErr.message)) {
+      return {
+        ok: false,
+        error:
+          "An account with that email already exists. Use \u201creset password\u201d on the existing client instead.",
+      };
+    }
     return { ok: false, error: createErr.message };
   }
+  const userId = created?.user?.id;
   if (!userId) {
-    const { data: list, error: listErr } = await service.auth.admin.listUsers({
-      perPage: 200,
-    });
-    if (listErr) return { ok: false, error: listErr.message };
-    const found = list.users.find((u) => u.email?.toLowerCase() === email);
-    if (!found) {
-      return { ok: false, error: "Could not locate user after create." };
-    }
-    userId = found.id;
+    return { ok: false, error: "Could not create auth user." };
   }
 
   // 2. force profile row to client role + name
@@ -154,6 +150,48 @@ export async function createNewClient(
 
   revalidatePath("/admin/clients");
   return { ok: true, data: { clientId } };
+}
+
+/**
+ * Reset a client's password to a new value supplied by the admin (or one
+ * the form generated). Returns ok with the email so the UI can show a
+ * "copy & send" panel.
+ */
+export async function resetClientPassword(input: {
+  client_id: string;
+  password: string;
+}): Promise<ActionResult<{ email: string }>> {
+  const guard = await assertAdmin();
+  if (!guard.ok) return { ok: false, error: guard.error };
+
+  const password = input.password;
+  if (!password || password.length < 8) {
+    return { ok: false, error: "Password must be at least 8 characters." };
+  }
+
+  const supabase = createClient();
+  const { data: client } = (await supabase
+    .from("clients")
+    .select("id, user_id")
+    .eq("id", input.client_id)
+    .maybeSingle()) as { data: { id: string; user_id: string } | null };
+  if (!client) return { ok: false, error: "Client not found." };
+
+  const { data: profile } = (await supabase
+    .from("profiles")
+    .select("email")
+    .eq("id", client.user_id)
+    .maybeSingle()) as { data: { email: string } | null };
+  if (!profile) return { ok: false, error: "Profile not found." };
+
+  const service = createServiceClient();
+  const { error } = await service.auth.admin.updateUserById(client.user_id, {
+    password,
+  });
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath(`/admin/clients/${client.id}`);
+  return { ok: true, data: { email: profile.email } };
 }
 
 export interface UpdateClientInput {
