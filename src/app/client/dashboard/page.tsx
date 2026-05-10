@@ -14,6 +14,7 @@ import {
   getFoodLogForDate,
   totalsFromLogs,
 } from "@/lib/nutrition/queries";
+import { getTodaysCheckin } from "@/lib/tracking/queries";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
 
 type NameRow = { full_name: string | null } | null;
@@ -38,13 +39,14 @@ export default async function ClientDashboardPage() {
 
   const locale = readLocaleFromCookie();
   const today = new Date().toISOString().slice(0, 10);
-  const [plan, nutritionPlan, todayLogs] = clientRow
+  const [plan, nutritionPlan, todayLogs, todaysCheckin] = clientRow
     ? await Promise.all([
         getActivePlan(clientRow.id),
         getActiveNutritionPlan(clientRow.id),
         getFoodLogForDate(clientRow.id, today),
+        getTodaysCheckin(clientRow.id),
       ])
-    : [null, null, []];
+    : [null, null, [], null];
   const firstDay = plan?.days[0];
   const totals = totalsFromLogs(todayLogs);
 
@@ -127,13 +129,30 @@ export default async function ClientDashboardPage() {
             <CardTitle className="text-base">
               {locale === "ar" ? "تشيك-إن اليوم" : "Today's check-in"}
             </CardTitle>
+            <CardDescription>
+              {todaysCheckin
+                ? locale === "ar"
+                  ? "تم تسجيل اليوم ✓"
+                  : "Submitted ✓"
+                : locale === "ar"
+                  ? "لسه ماتسجلش."
+                  : "Not submitted yet."}
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">
-              {locale === "ar"
-                ? "هيتفعل في المرحلة الجاية."
-                : "Coming next phase."}
-            </p>
+            <Link
+              href="/client/checkin"
+              className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+            >
+              {todaysCheckin
+                ? locale === "ar"
+                  ? "تعديل التشيك إن"
+                  : "Update check-in"
+                : locale === "ar"
+                  ? "اعمل تشيك إن"
+                  : "Open check-in"}
+              <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+            </Link>
           </CardContent>
         </Card>
       </div>
