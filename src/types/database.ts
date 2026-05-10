@@ -110,6 +110,50 @@ export interface WorkoutLog {
   created_at: string;
 }
 
+export interface NutritionPlan {
+  id: string;
+  client_id: string;
+  mode: NutritionMode;
+  calories_target: number | null;
+  protein_target: number | null;
+  carbs_target: number | null;
+  fat_target: number | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MealFoodItem {
+  name: string;
+  grams: number;
+  kcal: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
+export interface Meal {
+  id: string;
+  plan_id: string;
+  meal_type: string;
+  food_items: MealFoodItem[];
+  display_order: number;
+}
+
+export interface FoodLog {
+  id: string;
+  client_id: string;
+  food_id: string;
+  log_date: string;
+  weight_grams: number;
+  calculated_calories: number;
+  calculated_protein: number;
+  calculated_carbs: number;
+  calculated_fat: number;
+  meal_type: string | null;
+  created_at: string;
+}
+
 type TableShape<R, I, U> = {
   Row: R;
   Insert: I;
@@ -170,6 +214,31 @@ export interface Database {
         Partial<WorkoutLog> &
           Pick<WorkoutLog, "client_id" | "exercise_id" | "set_number">,
         Partial<WorkoutLog>
+      >;
+      nutrition_plans: TableShape<
+        NutritionPlan,
+        Partial<NutritionPlan> & Pick<NutritionPlan, "client_id" | "mode">,
+        Partial<NutritionPlan>
+      >;
+      meals: TableShape<
+        Meal,
+        Partial<Meal> & Pick<Meal, "plan_id" | "meal_type">,
+        Partial<Meal>
+      >;
+      food_logs: TableShape<
+        FoodLog,
+        Partial<FoodLog> &
+          Pick<
+            FoodLog,
+            | "client_id"
+            | "food_id"
+            | "weight_grams"
+            | "calculated_calories"
+            | "calculated_protein"
+            | "calculated_carbs"
+            | "calculated_fat"
+          >,
+        Partial<FoodLog>
       >;
     };
     Views: Record<string, never>;

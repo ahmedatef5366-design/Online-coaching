@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Dumbbell } from "lucide-react";
+import { Apple, ArrowLeft, Dumbbell } from "lucide-react";
 import { getClientDetail } from "@/lib/clients/queries";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
 import { ClientProfileForm } from "@/components/admin/clients/client-profile-form";
@@ -54,6 +54,13 @@ export default async function ClientDetailPage({
             >
               <Dumbbell className="h-4 w-4 text-primary" />
               {locale === "ar" ? "خطة التمرين" : "Workout plan"}
+            </Link>
+            <Link
+              href={`/admin/clients/${detail.client.id}/nutrition`}
+              className="flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium hover:bg-card/80"
+            >
+              <Apple className="h-4 w-4 text-primary" />
+              {locale === "ar" ? "خطة التغذية" : "Nutrition plan"}
             </Link>
           </CardContent>
         </Card>

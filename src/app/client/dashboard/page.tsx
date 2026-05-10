@@ -9,6 +9,11 @@ import {
 } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 import { getActivePlan } from "@/lib/workouts/queries";
+import {
+  getActiveNutritionPlan,
+  getFoodLogForDate,
+  totalsFromLogs,
+} from "@/lib/nutrition/queries";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
 
 type NameRow = { full_name: string | null } | null;
@@ -32,8 +37,16 @@ export default async function ClientDashboardPage() {
   const clientRow = clientResult.data as { id: string } | null;
 
   const locale = readLocaleFromCookie();
-  const plan = clientRow ? await getActivePlan(clientRow.id) : null;
+  const today = new Date().toISOString().slice(0, 10);
+  const [plan, nutritionPlan, todayLogs] = clientRow
+    ? await Promise.all([
+        getActivePlan(clientRow.id),
+        getActiveNutritionPlan(clientRow.id),
+        getFoodLogForDate(clientRow.id, today),
+      ])
+    : [null, null, []];
   const firstDay = plan?.days[0];
+  const totals = totalsFromLogs(todayLogs);
 
   return (
     <div className="space-y-6">
@@ -91,13 +104,22 @@ export default async function ClientDashboardPage() {
             <CardTitle className="text-base">
               {locale === "ar" ? "الماكروز اليوم" : "Macros today"}
             </CardTitle>
+            <CardDescription>
+              {nutritionPlan
+                ? `${Math.round(totals.calories)}${nutritionPlan.plan.calories_target ? ` / ${nutritionPlan.plan.calories_target}` : ""} kcal`
+                : locale === "ar"
+                  ? "مفيش خطة لسه."
+                  : "No plan yet."}
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">
-              {locale === "ar"
-                ? "هيتفعل في المرحلة الجاية."
-                : "Coming next phase."}
-            </p>
+            <Link
+              href="/client/nutrition"
+              className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+            >
+              {locale === "ar" ? "افتح التتبع" : "Open tracker"}
+              <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+            </Link>
           </CardContent>
         </Card>
         <Card>
