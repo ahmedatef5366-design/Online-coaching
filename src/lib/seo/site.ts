@@ -1,8 +1,35 @@
-// Resolve the public site URL with a sensible fallback for local dev.
-// Set NEXT_PUBLIC_SITE_URL in production (no trailing slash).
+// Resolve the public site URL with a fallback chain so SEO metadata,
+// canonical URLs, OpenGraph tags, sitemap.xml, robots.txt, and email links
+// always point to the real public origin — even if NEXT_PUBLIC_SITE_URL is
+// not configured.
+//
+// Priority:
+//   1. NEXT_PUBLIC_SITE_URL — explicit override (recommended for production)
+//   2. RENDER_EXTERNAL_URL  — auto-injected by Render at runtime
+//      (https://render.com/docs/environment-variables)
+//   3. https://${VERCEL_URL} — auto-injected by Vercel at runtime
+//      (https://vercel.com/docs/projects/environment-variables/system-environment-variables)
+//   4. http://localhost:3000 — local dev fallback
+function pickRawUrl(): string {
+  const explicit = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (explicit) return explicit;
+
+  const render = process.env.RENDER_EXTERNAL_URL?.trim();
+  if (render) return render;
+
+  const vercel = process.env.VERCEL_URL?.trim();
+  if (vercel) {
+    // VERCEL_URL is the host only ("my-app.vercel.app"), no scheme.
+    return vercel.startsWith("http://") || vercel.startsWith("https://")
+      ? vercel
+      : `https://${vercel}`;
+  }
+
+  return "http://localhost:3000";
+}
+
 export function siteUrl(): string {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-  return raw.replace(/\/+$/, "");
+  return pickRawUrl().replace(/\/+$/, "");
 }
 
 export const SITE_NAME = "Coaching Platform";
