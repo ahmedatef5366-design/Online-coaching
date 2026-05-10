@@ -53,6 +53,7 @@ the SQL editor in the Supabase dashboard:
 5. `0005_progress_photos_storage.sql` — private photos bucket + policies
 6. `0006_workout_plan_coach_notes.sql` — plan-level coach notes columns
 7. `0008_messages.sql` — coach ↔ client in-app messaging (RLS + Realtime)
+8. `0009_packages_and_applications.sql` — sales packages catalog + public coaching application form (RLS)
 
 ### 4. Create your admin user
 
