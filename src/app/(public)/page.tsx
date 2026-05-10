@@ -18,6 +18,7 @@ import Image from "next/image";
 import { loadAllSections } from "@/lib/cms/loader";
 import { pickLocaleText } from "@/lib/cms/sections";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
+import { Reveal } from "@/components/ui/reveal";
 import type {
   CtaFooterContent,
   FeaturesContent,
@@ -91,22 +92,28 @@ export default async function LandingPage() {
             />
           )}
           <div className="container relative flex min-h-[80vh] flex-col items-start justify-center gap-6 py-24">
-            <p className="rounded-full border border-border bg-card px-3 py-1 text-xs uppercase tracking-widest text-muted-foreground">
-              {locale === "ar"
-                ? "كوتشينج أونلاين · شخصي"
-                : "Online coaching · 1-on-1"}
-            </p>
-            <h1 className="max-w-3xl font-display text-5xl font-extrabold leading-[1.05] tracking-tight md:text-7xl">
-              {pickLocaleText(hero, "headline", locale) ||
-                "Build the body you actually want."}
-            </h1>
-            <p className="max-w-xl text-lg text-muted-foreground">
-              {pickLocaleText(hero, "subheadline", locale)}
-            </p>
-            <div className="flex flex-wrap items-center gap-3">
+            <Reveal>
+              <p className="rounded-full border border-border bg-card px-3 py-1 text-xs uppercase tracking-widest text-muted-foreground">
+                {locale === "ar"
+                  ? "كوتشينج أونلاين · شخصي"
+                  : "Online coaching · 1-on-1"}
+              </p>
+            </Reveal>
+            <Reveal delay={0.05}>
+              <h1 className="max-w-3xl font-display text-5xl font-extrabold leading-[1.05] tracking-tight md:text-7xl">
+                {pickLocaleText(hero, "headline", locale) ||
+                  "Build the body you actually want."}
+              </h1>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <p className="max-w-xl text-lg text-muted-foreground">
+                {pickLocaleText(hero, "subheadline", locale)}
+              </p>
+            </Reveal>
+            <Reveal delay={0.15} className="flex flex-wrap items-center gap-3">
               <Link
                 href="/signup"
-                className="rounded-md bg-primary px-6 py-3 text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                className="rounded-md bg-primary px-6 py-3 text-base font-semibold text-primary-foreground transition-all hover:scale-[1.02] hover:bg-primary/90"
               >
                 {pickLocaleText(hero, "cta_text", locale) ||
                   "Start your journey"}
@@ -117,7 +124,7 @@ export default async function LandingPage() {
               >
                 {locale === "ar" ? "إزاي بيشتغل" : "How it works"}
               </Link>
-            </div>
+            </Reveal>
           </div>
         </section>
       )}
@@ -137,8 +144,9 @@ export default async function LandingPage() {
                 const title = pickLocaleText(item, "title", locale);
                 const desc = pickLocaleText(item, "desc", locale);
                 return (
-                  <div
+                  <Reveal
                     key={`${title}-${i}`}
+                    delay={i * 0.06}
                     className="rounded-xl border border-border bg-background/40 p-5"
                   >
                     <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
@@ -146,7 +154,7 @@ export default async function LandingPage() {
                     </div>
                     <h3 className="mb-2 font-semibold">{title}</h3>
                     <p className="text-sm text-muted-foreground">{desc}</p>
-                  </div>
+                  </Reveal>
                 );
               })}
             </div>
@@ -166,8 +174,10 @@ export default async function LandingPage() {
                 const title = pickLocaleText(step, "title", locale);
                 const desc = pickLocaleText(step, "desc", locale);
                 return (
-                  <li
+                  <Reveal
+                    as="li"
                     key={`${title}-${i}`}
+                    delay={i * 0.08}
                     className="rounded-xl border border-border bg-card/60 p-6"
                   >
                     <div className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary font-bold text-primary-foreground">
@@ -175,7 +185,7 @@ export default async function LandingPage() {
                     </div>
                     <h3 className="mb-1 text-lg font-semibold">{title}</h3>
                     <p className="text-sm text-muted-foreground">{desc}</p>
-                  </li>
+                  </Reveal>
                 );
               })}
             </ol>

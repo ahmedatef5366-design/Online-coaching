@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   Line,
   LineChart,
@@ -84,10 +85,13 @@ export function WeightLogger({ locale, weights }: Props) {
                 weight_kg: String(fd.get("weight_kg") ?? ""),
               });
               if (!result.ok) {
-                setError(result.error ?? "Could not save.");
+                const msg = result.error ?? "Could not save.";
+                setError(msg);
+                toast.error(msg);
                 return;
               }
               setSaved(true);
+              toast.success(locale === "ar" ? "اتسجل الوزن" : "Weight logged");
               (e.target as HTMLFormElement).reset();
               router.refresh();
             });
