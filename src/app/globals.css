@@ -24,6 +24,18 @@
     --input: 240 4% 18%;
     --ring: 84 81% 56%;
     --radius: 0.75rem;
+
+    /* Semantic intents */
+    --success: 142 70% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 55%;
+    --warning-foreground: 240 6% 10%;
+    --info: 210 90% 60%;
+    --info-foreground: 0 0% 100%;
+
+    /* Latin font slot (default) */
+    --font-sans: var(--font-jakarta);
+    --font-display: var(--font-syne);
   }
 
   /* The platform is a "dark by default" experience; the .light variant is
@@ -48,6 +60,22 @@
     --border: 240 6% 90%;
     --input: 240 6% 90%;
     --ring: 84 81% 36%;
+
+    /* Semantic intents (light) */
+    --success: 142 65% 38%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 95% 48%;
+    --warning-foreground: 240 6% 10%;
+    --info: 210 90% 50%;
+    --info-foreground: 0 0% 100%;
+  }
+
+  /* When Arabic is active, swap the font slots to Cairo so both body and
+     display headings use a font with proper Arabic letterforms. Plus
+     Jakarta and Syne are Latin-only and fall back to system fonts. */
+  html[lang="ar"] {
+    --font-sans: var(--font-cairo);
+    --font-display: var(--font-cairo);
   }
 }
 
@@ -67,4 +95,9 @@
 /* RTL helpers ------------------------------------------------------------- */
 html[dir="rtl"] body {
   font-feature-settings: normal;
+}
+
+/* Slightly looser line-height for Arabic so diacritics breathe. */
+html[lang="ar"] body {
+  line-height: 1.65;
 }
