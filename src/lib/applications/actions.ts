@@ -10,6 +10,10 @@ import {
   sendApplicationAcceptedEmail,
   sendApplicationReceivedEmail,
 } from "@/lib/email";
+import {
+  APPLICATION_TEXT_LIMITS,
+  capApplicationText,
+} from "./validators";
 import type {
   ActivityLevel,
   ApplicationStatus,
@@ -152,9 +156,17 @@ export async function submitCoachingApplication(
     };
   }
 
-  const fullName = asTextRequired(raw.full_name);
-  const email = asTextRequired(raw.email).toLowerCase();
-  const phone = asTextRequired(raw.phone);
+  const fullName = asTextRequired(raw.full_name).slice(
+    0,
+    APPLICATION_TEXT_LIMITS.full_name,
+  );
+  const email = asTextRequired(raw.email)
+    .toLowerCase()
+    .slice(0, APPLICATION_TEXT_LIMITS.email);
+  const phone = asTextRequired(raw.phone).slice(
+    0,
+    APPLICATION_TEXT_LIMITS.phone,
+  );
 
   if (!fullName) return { ok: false, error: "Full name is required." };
   if (!EMAIL_RE.test(email)) return { ok: false, error: "Invalid email." };
@@ -164,10 +176,13 @@ export async function submitCoachingApplication(
     full_name: fullName,
     email,
     phone,
-    country: asText(raw.country),
-    city: asText(raw.city),
+    country: capApplicationText(raw.country, "country"),
+    city: capApplicationText(raw.city, "city"),
     preferred_contact: asContact(raw.preferred_contact) ?? "whatsapp",
-    best_contact_time: asText(raw.best_contact_time),
+    best_contact_time: capApplicationText(
+      raw.best_contact_time,
+      "best_contact_time",
+    ),
 
     age: asInt(raw.age),
     gender: asGender(raw.gender),
@@ -178,35 +193,53 @@ export async function submitCoachingApplication(
     goal: asGoal(raw.goal),
     target_weight_kg: asNumber(raw.target_weight_kg),
     target_date: asDate(raw.target_date),
-    motivation_text: asText(raw.motivation_text),
+    motivation_text: capApplicationText(raw.motivation_text, "motivation_text"),
 
     experience_level: asExperience(raw.experience_level),
     previous_coaching: asBool(raw.previous_coaching),
-    previous_results_text: asText(raw.previous_results_text),
+    previous_results_text: capApplicationText(
+      raw.previous_results_text,
+      "previous_results_text",
+    ),
 
     training_days_per_week: asInt(raw.training_days_per_week),
     training_location: asLocation(raw.training_location),
-    available_equipment_text: asText(raw.available_equipment_text),
-    preferred_training_time: asText(raw.preferred_training_time),
+    available_equipment_text: capApplicationText(
+      raw.available_equipment_text,
+      "available_equipment_text",
+    ),
+    preferred_training_time: capApplicationText(
+      raw.preferred_training_time,
+      "preferred_training_time",
+    ),
 
-    injuries_or_conditions: asText(raw.injuries_or_conditions),
-    medications: asText(raw.medications),
-    allergies: asText(raw.allergies),
-    surgeries_text: asText(raw.surgeries_text),
+    injuries_or_conditions: capApplicationText(
+      raw.injuries_or_conditions,
+      "injuries_or_conditions",
+    ),
+    medications: capApplicationText(raw.medications, "medications"),
+    allergies: capApplicationText(raw.allergies, "allergies"),
+    surgeries_text: capApplicationText(raw.surgeries_text, "surgeries_text"),
 
-    dietary_restrictions: asText(raw.dietary_restrictions),
-    foods_disliked: asText(raw.foods_disliked),
-    current_diet_summary: asText(raw.current_diet_summary),
+    dietary_restrictions: capApplicationText(
+      raw.dietary_restrictions,
+      "dietary_restrictions",
+    ),
+    foods_disliked: capApplicationText(raw.foods_disliked, "foods_disliked"),
+    current_diet_summary: capApplicationText(
+      raw.current_diet_summary,
+      "current_diet_summary",
+    ),
     water_intake_liters: asNumber(raw.water_intake_liters),
 
-    occupation: asText(raw.occupation),
+    occupation: capApplicationText(raw.occupation, "occupation"),
     daily_activity_level: asActivity(raw.daily_activity_level),
     sleep_hours_avg: asNumber(raw.sleep_hours_avg),
     stress_level: asInt(raw.stress_level),
     smokes: asBool(raw.smokes),
 
     package_id: asText(raw.package_id),
-    notes: asText(raw.notes),
+    notes: capApplicationText(raw.notes, "notes"),
     locale: asText(raw.locale) === "ar" ? "ar" : "en",
     status: "new" as ApplicationStatus,
   };
