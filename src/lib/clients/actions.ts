@@ -93,13 +93,16 @@ export async function createNewClient(
 
   const service = createServiceClient();
 
-  // 1. create the auth user (idempotent — handle already-exists below)
+  // 1. create the auth user (idempotent — handle already-exists below).
+  // Note: handle_new_user (migration 0011) ignores user_metadata.role and
+  // always inserts role='client', so the role is enforced server-side
+  // regardless of what we pass here. We still pass full_name for display.
   const { data: created, error: createErr } =
     await service.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
-      user_metadata: { full_name: fullName, role: "client" },
+      user_metadata: { full_name: fullName },
     });
 
   if (createErr) {
