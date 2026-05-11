@@ -4,8 +4,12 @@ import { AlertTriangle, ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import {
   getDayWithExercises,
+  getLastSessionPerExercise,
+  getLifetimePrsPerExercise,
   getPlanNotesForDay,
   getWorkoutLogsForDate,
+  type LastSessionSummary,
+  type PrSummary,
 } from "@/lib/workouts/queries";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
 import { WorkoutSession } from "@/components/client/workouts/workout-session";
@@ -39,6 +43,19 @@ export default async function ClientWorkoutDayPage({
   const existingLogs = clientRow
     ? await getWorkoutLogsForDate(clientRow.id, today, exerciseIds)
     : [];
+  const lastSessions: Map<string, LastSessionSummary> = clientRow
+    ? await getLastSessionPerExercise(clientRow.id, exerciseIds, today)
+    : new Map();
+  const lifetimePrs: Map<string, PrSummary> = clientRow
+    ? await getLifetimePrsPerExercise(clientRow.id, exerciseIds, today)
+    : new Map();
+
+  // Maps are not serializable across the server/client boundary in Next,
+  // so flatten to plain records before handing them to the client.
+  const lastSessionRecord: Record<string, LastSessionSummary> =
+    Object.fromEntries(lastSessions);
+  const lifetimePrRecord: Record<string, PrSummary> =
+    Object.fromEntries(lifetimePrs);
 
   return (
     <div className="space-y-4">
@@ -81,6 +98,8 @@ export default async function ClientWorkoutDayPage({
         locale={locale}
         exercises={dayData.exercises}
         existingLogs={existingLogs}
+        lastSessions={lastSessionRecord}
+        lifetimePrs={lifetimePrRecord}
         today={today}
       />
     </div>

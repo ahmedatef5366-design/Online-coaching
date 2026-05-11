@@ -158,3 +158,114 @@ export async function getWorkoutLogsForDate(
   };
   return data ?? [];
 }
+
+export interface LastSessionSummary {
+  log_date: string;
+  sets: WorkoutLog[];
+  bestWeight: number;
+  bestE1rm: number;
+}
+
+/** For each exercise, fetch the most recent prior session (latest log_date
+ *  strictly before `beforeDate`) and return the full set list for that
+ *  session. Used by the workout logger to show "last time" hints, default
+ *  weights/reps, and progressive-overload suggestions. */
+export async function getLastSessionPerExercise(
+  clientId: string,
+  exerciseIds: string[],
+  beforeDate: string,
+): Promise<Map<string, LastSessionSummary>> {
+  const result = new Map<string, LastSessionSummary>();
+  if (exerciseIds.length === 0) return result;
+
+  const supabase = createClient();
+  const { data } = (await supabase
+    .from("workout_logs")
+    .select("*")
+    .eq("client_id", clientId)
+    .in("exercise_id", exerciseIds)
+    .lt("log_date", beforeDate)
+    .order("log_date", { ascending: false })
+    .order("set_number", { ascending: true })
+    .limit(500)) as { data: WorkoutLog[] | null };
+
+  const grouped = new Map<string, WorkoutLog[]>();
+  (data ?? []).forEach((log) => {
+    const existing = grouped.get(log.exercise_id) ?? [];
+    if (existing.length === 0) {
+      existing.push(log);
+      grouped.set(log.exercise_id, existing);
+      return;
+    }
+    if (existing[0].log_date === log.log_date) {
+      existing.push(log);
+    }
+  });
+
+  grouped.forEach((sets, exerciseId) => {
+    let bestWeight = 0;
+    let bestE1rm = 0;
+    sets.forEach((s) => {
+      const w = s.weight_kg ?? 0;
+      const r = s.reps_done ?? 0;
+      if (w > bestWeight) bestWeight = w;
+      const e1rm = r > 0 ? w * (1 + r / 30) : 0;
+      if (e1rm > bestE1rm) bestE1rm = e1rm;
+    });
+    result.set(exerciseId, {
+      log_date: sets[0].log_date,
+      sets,
+      bestWeight,
+      bestE1rm,
+    });
+  });
+
+  return result;
+}
+
+export interface PrSummary {
+  bestWeight: number;
+  bestE1rm: number;
+}
+
+/** Lifetime best weight + best estimated 1RM per exercise (strictly before
+ *  `beforeDate`). Used by the workout summary screen to flag new PRs. */
+export async function getLifetimePrsPerExercise(
+  clientId: string,
+  exerciseIds: string[],
+  beforeDate: string,
+): Promise<Map<string, PrSummary>> {
+  const result = new Map<string, PrSummary>();
+  if (exerciseIds.length === 0) return result;
+
+  const supabase = createClient();
+  const { data } = (await supabase
+    .from("workout_logs")
+    .select("exercise_id, weight_kg, reps_done")
+    .eq("client_id", clientId)
+    .in("exercise_id", exerciseIds)
+    .lt("log_date", beforeDate)) as {
+    data:
+      | Array<{
+          exercise_id: string;
+          weight_kg: number | null;
+          reps_done: number | null;
+        }>
+      | null;
+  };
+
+  (data ?? []).forEach((row) => {
+    const w = row.weight_kg ?? 0;
+    const r = row.reps_done ?? 0;
+    const e1rm = r > 0 ? w * (1 + r / 30) : 0;
+    const current = result.get(row.exercise_id) ?? {
+      bestWeight: 0,
+      bestE1rm: 0,
+    };
+    if (w > current.bestWeight) current.bestWeight = w;
+    if (e1rm > current.bestE1rm) current.bestE1rm = e1rm;
+    result.set(row.exercise_id, current);
+  });
+
+  return result;
+}
