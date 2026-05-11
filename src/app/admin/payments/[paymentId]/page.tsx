@@ -222,7 +222,7 @@ export default async function PaymentDetailPage({ params }: Props) {
                 <a
                   href={whatsappInstructionsLink}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
                 >
                   <MessageSquare className="h-4 w-4" />
