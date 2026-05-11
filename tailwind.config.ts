@@ -53,6 +53,20 @@ const config: Config = {
           orange: "#f97316",
           charcoal: "#0f0f0f",
         },
+        // Semantic intents — use these instead of raw red/green/yellow/blue
+        // so the rest of the theme can adapt later (e.g. brand re-skin).
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
+        info: {
+          DEFAULT: "hsl(var(--info))",
+          foreground: "hsl(var(--info-foreground))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -60,17 +74,25 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ["var(--font-jakarta)", "system-ui", "sans-serif"],
-        display: ["var(--font-syne)", "system-ui", "sans-serif"],
+        // Body and display fonts — resolved per-locale by CSS variables in
+        // globals.css (Latin uses Plus Jakarta + Syne, Arabic uses Cairo).
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "system-ui", "sans-serif"],
+        arabic: ["var(--font-cairo)", "system-ui", "sans-serif"],
       },
       keyframes: {
         "fade-up": {
           from: { opacity: "0", transform: "translateY(8px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        // Skeleton shimmer — used by <Skeleton /> for loading placeholders.
+        shimmer: {
+          "100%": { transform: "translateX(100%)" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.5s ease-out",
+        shimmer: "shimmer 1.6s infinite",
       },
     },
   },
