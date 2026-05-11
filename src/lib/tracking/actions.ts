@@ -144,9 +144,19 @@ export async function addProgressPhoto(input: {
     windowMs: 60_000,
   });
   if (!limit.ok) return { ok: false, error: rateLimitMessage(limit.retryAt) };
+
+  // Bucket-level RLS already prevents reading another client's storage
+  // objects via signed URLs, but a hostile caller could still pollute
+  // their own progress_photos table with rows pointing at someone else's
+  // path. Validate that the path belongs to this client before inserting.
+  const path = (input.storage_path ?? "").trim();
+  if (!path || !path.startsWith(`${clientId}/`) || path.includes("..")) {
+    return { ok: false, error: "Invalid storage path." };
+  }
+
   const { error } = await supabase.from("progress_photos").insert({
     client_id: clientId,
-    storage_path: input.storage_path,
+    storage_path: path,
     taken_on: input.taken_on ?? new Date().toISOString().slice(0, 10),
     note: asText(input.note ?? null),
   });
