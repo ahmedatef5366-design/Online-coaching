@@ -2,6 +2,7 @@ import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 import { getUnreadCountForCurrentUser } from "@/lib/messages/queries";
 import type { Locale } from "@/lib/i18n/config";
+import { getT } from "@/lib/i18n/t";
 
 interface Props {
   href: string;
@@ -11,7 +12,8 @@ interface Props {
 /** Header link to the messages inbox with an unread-count badge. */
 export async function MessagesLink({ href, locale }: Props) {
   const unread = await getUnreadCountForCurrentUser();
-  const label = locale === "ar" ? "الرسائل" : "Messages";
+  const t = getT(locale);
+  const label = t("client.messages.no_link_title");
   return (
     <Link
       href={href}

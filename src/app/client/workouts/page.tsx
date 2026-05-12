@@ -3,6 +3,7 @@ import { AlertTriangle, ArrowRight, Dumbbell, Megaphone } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getActivePlan } from "@/lib/workouts/queries";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
+import { getT } from "@/lib/i18n/t";
 import {
   Card,
   CardContent,
@@ -25,6 +26,7 @@ export default async function ClientWorkoutsPage() {
     .maybeSingle()) as { data: { id: string } | null };
 
   const locale = readLocaleFromCookie();
+  const t = getT(locale);
   const plan = clientRow ? await getActivePlan(clientRow.id) : null;
 
   if (!plan) {
@@ -32,18 +34,16 @@ export default async function ClientWorkoutsPage() {
       <div className="space-y-4">
         <div>
           <h1 className="font-display text-3xl font-bold tracking-tight">
-            {locale === "ar" ? "تمارينك" : "Your workouts"}
+            {t("client.workouts.title")}
           </h1>
         </div>
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
-              {locale === "ar" ? "مفيش خطة لسه" : "No plan yet"}
+              {t("client.workouts.no_plan_title")}
             </CardTitle>
             <CardDescription>
-              {locale === "ar"
-                ? "الكوتش لسه ما عملش خطة. هتظهر هنا بمجرد ما تتعمل."
-                : "Your coach hasn't assigned a plan yet. It'll show up here as soon as it does."}
+              {t("client.workouts.no_plan_description")}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -55,7 +55,7 @@ export default async function ClientWorkoutsPage() {
     <div className="space-y-6">
       <div>
         <p className="text-sm text-muted-foreground">
-          {locale === "ar" ? "خطتك الحالية" : "Your current plan"}
+          {t("client.workouts.current_plan")}
         </p>
         <h1 className="font-display text-3xl font-bold tracking-tight">
           {plan.plan.name}
@@ -70,7 +70,7 @@ export default async function ClientWorkoutsPage() {
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
           <div className="space-y-1">
             <p className="text-xs font-semibold uppercase tracking-wider">
-              {locale === "ar" ? "لازم تخلي بالك" : "Heads up"}
+              {t("client.workouts.heads_up")}
             </p>
             <p className="whitespace-pre-wrap leading-relaxed">
               {plan.plan.attention_notes}
@@ -84,7 +84,7 @@ export default async function ClientWorkoutsPage() {
           <Megaphone className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
           <div className="space-y-1">
             <p className="text-xs font-semibold uppercase tracking-wider text-foreground">
-              {locale === "ar" ? "ملاحظات الكوتش" : "Coach notes"}
+              {t("client.workouts.coach_notes")}
             </p>
             <p className="whitespace-pre-wrap leading-relaxed">
               {plan.plan.general_notes}
@@ -96,9 +96,7 @@ export default async function ClientWorkoutsPage() {
       {plan.days.length === 0 ? (
         <Card>
           <CardContent className="py-8 text-center text-sm text-muted-foreground">
-            {locale === "ar"
-              ? "الخطة فاضية لسه."
-              : "This plan doesn't have any days yet."}
+            {t("client.workouts.empty_plan")}
           </CardContent>
         </Card>
       ) : (
@@ -115,14 +113,14 @@ export default async function ClientWorkoutsPage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                      {locale === "ar"
-                        ? `يوم ${d.day.day_number}`
-                        : `Day ${d.day.day_number}`}
+                      {t("client.workouts.day_label", {
+                        number: d.day.day_number,
+                      })}
                     </p>
                     <p className="font-semibold">{d.day.day_name}</p>
                     <p className="text-xs text-muted-foreground">
                       {d.exercises.length}{" "}
-                      {locale === "ar" ? "تمرين" : "exercises"}
+                      {t("client.workouts.exercises_count")}
                     </p>
                   </div>
                   <ArrowRight className="h-4 w-4 text-muted-foreground rtl:rotate-180" />

@@ -15,14 +15,14 @@ import {
 } from "@/components/ui/card";
 import { saveCheckin } from "@/lib/tracking/actions";
 import type { DailyCheckin } from "@/types/database";
-import type { Locale } from "@/lib/i18n/config";
+import { useI18n } from "@/components/i18n-provider";
 
 interface Props {
-  locale: Locale;
   initial: DailyCheckin | null;
 }
 
-export function CheckinForm({ locale, initial }: Props) {
+export function CheckinForm({ initial }: Props) {
+  const { t } = useI18n();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [status, setStatus] = useState(initial?.workout_done ?? "yes");
@@ -34,16 +34,12 @@ export function CheckinForm({ locale, initial }: Props) {
     <Card>
       <CardHeader>
         <CardTitle className="text-base">
-          {locale === "ar" ? "تشيك إن اليوم" : "Today"}
+          {t("client.checkin.form.today_title")}
         </CardTitle>
         <CardDescription>
           {initial
-            ? locale === "ar"
-              ? "اتسجّل قبل كده — هتعدله بدل ما تضيف يومك تاني."
-              : "Already submitted — save again to update."
-            : locale === "ar"
-              ? "كل الحقول إجبارية ما عدا الملاحظات."
-              : "All fields required except notes."}
+            ? t("client.checkin.form.already_submitted")
+            : t("client.checkin.form.fields_required")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -71,9 +67,7 @@ export function CheckinForm({ locale, initial }: Props) {
                 return;
               }
               setSaved(true);
-              toast.success(
-                locale === "ar" ? "تم حفظ التشيك إن" : "Check-in saved",
-              );
+              toast.success(t("client.checkin.form.saved_toast"));
               router.refresh();
             });
           }}
@@ -81,7 +75,7 @@ export function CheckinForm({ locale, initial }: Props) {
         >
           <fieldset className="space-y-2">
             <legend className="text-sm font-medium">
-              {locale === "ar" ? "تمرنت اليوم؟" : "Did you train today?"}
+              {t("client.checkin.form.did_train")}
             </legend>
             <div className="flex flex-wrap gap-3 text-sm">
               {(["yes", "partial", "no"] as const).map((s) => (
@@ -94,23 +88,17 @@ export function CheckinForm({ locale, initial }: Props) {
                     onChange={() => setStatus(s)}
                   />
                   {s === "yes"
-                    ? locale === "ar"
-                      ? "آه"
-                      : "Yes"
+                    ? t("client.checkin.form.yes")
                     : s === "partial"
-                      ? locale === "ar"
-                        ? "جزئي"
-                        : "Partial"
-                      : locale === "ar"
-                        ? "لأ"
-                        : "No"}
+                      ? t("client.checkin.form.partial")
+                      : t("client.checkin.form.no")}
                 </label>
               ))}
             </div>
             {status === "partial" ? (
               <div className="space-y-1">
                 <Label htmlFor="workout_sets_done">
-                  {locale === "ar" ? "كم سيت عملت؟" : "How many sets?"}
+                  {t("client.checkin.form.how_many_sets")}
                 </Label>
                 <Input
                   id="workout_sets_done"
@@ -125,9 +113,7 @@ export function CheckinForm({ locale, initial }: Props) {
 
           <div className="space-y-1">
             <Label htmlFor="diet_compliance">
-              {locale === "ar"
-                ? "الالتزام بالتغذية (٠–١٠٠٪)"
-                : "Diet compliance (0–100%)"}
+              {t("client.checkin.form.diet_compliance")}
             </Label>
             <Input
               id="diet_compliance"
@@ -142,7 +128,7 @@ export function CheckinForm({ locale, initial }: Props) {
 
           <fieldset className="space-y-2">
             <legend className="text-sm font-medium">
-              {locale === "ar" ? "كارديو" : "Cardio"}
+              {t("client.checkin.form.cardio_legend")}
             </legend>
             <label className="flex items-center gap-2 text-sm">
               <input
@@ -151,12 +137,12 @@ export function CheckinForm({ locale, initial }: Props) {
                 checked={cardioDone}
                 onChange={(e) => setCardioDone(e.target.checked)}
               />
-              {locale === "ar" ? "اتعمل كارديو" : "Did cardio"}
+              {t("client.checkin.form.did_cardio")}
             </label>
             {cardioDone ? (
               <div className="space-y-1">
                 <Label htmlFor="cardio_minutes">
-                  {locale === "ar" ? "المدة (دقائق)" : "Minutes"}
+                  {t("client.checkin.form.minutes")}
                 </Label>
                 <Input
                   id="cardio_minutes"
@@ -172,7 +158,7 @@ export function CheckinForm({ locale, initial }: Props) {
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1">
               <Label htmlFor="sleep_quality">
-                {locale === "ar" ? "جودة النوم (١–٥)" : "Sleep quality (1–5)"}
+                {t("client.checkin.form.sleep_quality")}
               </Label>
               <Input
                 id="sleep_quality"
@@ -185,7 +171,7 @@ export function CheckinForm({ locale, initial }: Props) {
             </div>
             <div className="space-y-1">
               <Label htmlFor="sleep_hours">
-                {locale === "ar" ? "ساعات النوم" : "Sleep hours"}
+                {t("client.checkin.form.sleep_hours")}
               </Label>
               <Input
                 id="sleep_hours"
@@ -201,9 +187,7 @@ export function CheckinForm({ locale, initial }: Props) {
 
           <div className="space-y-1">
             <Label htmlFor="client_note">
-              {locale === "ar"
-                ? "ملاحظات للكوتش (اختياري)"
-                : "Notes for coach (optional)"}
+              {t("client.checkin.form.notes_for_coach")}
             </Label>
             <Input
               id="client_note"
@@ -219,20 +203,14 @@ export function CheckinForm({ locale, initial }: Props) {
             </p>
           ) : null}
           {saved ? (
-            <p className="text-sm text-primary">
-              {locale === "ar" ? "تم الحفظ ✓" : "Saved ✓"}
-            </p>
+            <p className="text-sm text-primary">{t("common.saved")}</p>
           ) : null}
 
           <div className="flex justify-end">
             <Button type="submit" disabled={isPending}>
               {isPending
-                ? locale === "ar"
-                  ? "جاري الحفظ…"
-                  : "Saving…"
-                : locale === "ar"
-                  ? "حفظ التشيك إن"
-                  : "Save check-in"}
+                ? t("common.saving")
+                : t("client.checkin.form.save_checkin")}
             </Button>
           </div>
         </form>

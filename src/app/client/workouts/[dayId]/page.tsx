@@ -12,6 +12,7 @@ import {
   type PrSummary,
 } from "@/lib/workouts/queries";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
+import { getT } from "@/lib/i18n/t";
 import { WorkoutSession } from "@/components/client/workouts/workout-session";
 
 export const dynamic = "force-dynamic";
@@ -27,6 +28,7 @@ export default async function ClientWorkoutDayPage({
   ]);
   if (!dayData) notFound();
   const locale = readLocaleFromCookie();
+  const t = getT(locale);
 
   const supabase = createClient();
   const {
@@ -64,13 +66,11 @@ export default async function ClientWorkoutDayPage({
         className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
-        {locale === "ar" ? "كل الأيام" : "All days"}
+        {t("client.workouts.all_days")}
       </Link>
       <div>
         <p className="text-sm uppercase tracking-wider text-muted-foreground">
-          {locale === "ar"
-            ? `يوم ${dayData.day.day_number}`
-            : `Day ${dayData.day.day_number}`}
+          {t("client.workouts.day_label", { number: dayData.day.day_number })}
         </p>
         <h1 className="font-display text-3xl font-bold tracking-tight">
           {dayData.day.day_name}
@@ -85,7 +85,7 @@ export default async function ClientWorkoutDayPage({
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
           <div className="space-y-1">
             <p className="text-xs font-semibold uppercase tracking-wider">
-              {locale === "ar" ? "لازم تخلي بالك" : "Heads up"}
+              {t("client.workouts.heads_up")}
             </p>
             <p className="whitespace-pre-wrap leading-relaxed">
               {planNotes.attention_notes}
@@ -95,7 +95,6 @@ export default async function ClientWorkoutDayPage({
       ) : null}
 
       <WorkoutSession
-        locale={locale}
         exercises={dayData.exercises}
         existingLogs={existingLogs}
         lastSessions={lastSessionRecord}

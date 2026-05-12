@@ -4,9 +4,20 @@ import { createContext, useContext, useMemo, type ReactNode } from "react";
 import type { Locale } from "@/lib/i18n/config";
 import { getMessages, type Messages } from "@/lib/i18n/messages";
 
+/**
+ * Values that can be interpolated into a translated string via `{name}`
+ * placeholders. Numbers are coerced to strings. Strings render verbatim.
+ */
+export type TranslationValues = Record<string, string | number>;
+
 interface I18nContextValue {
   locale: Locale;
-  t: (key: string) => string;
+  /**
+   * Look up a translation by dot-notation key. Optional `values` object
+   * fills `{name}` placeholders in the string (e.g. `"Hello {name}"`).
+   * If the key is missing, returns the key itself so the gap is visible.
+   */
+  t: (key: string, values?: TranslationValues) => string;
   messages: Messages;
 }
 
@@ -25,6 +36,14 @@ function lookup(messages: unknown, key: string): string {
   return typeof cur === "string" ? cur : key;
 }
 
+function interpolate(template: string, values?: TranslationValues): string {
+  if (!values) return template;
+  return template.replace(/\{(\w+)\}/g, (match, name) => {
+    const v = values[name];
+    return v === undefined ? match : String(v);
+  });
+}
+
 export function I18nProvider({
   locale,
   children,
@@ -37,7 +56,8 @@ export function I18nProvider({
     return {
       locale,
       messages,
-      t: (key: string) => lookup(messages, key),
+      t: (key: string, values?: TranslationValues) =>
+        interpolate(lookup(messages, key), values),
     };
   }, [locale]);
 

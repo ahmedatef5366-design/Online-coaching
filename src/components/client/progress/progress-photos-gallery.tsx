@@ -17,6 +17,7 @@ import { createClient as createBrowserSupabase } from "@/lib/supabase/client";
 import { addProgressPhoto, deleteProgressPhoto } from "@/lib/tracking/actions";
 import type { ProgressPhoto } from "@/types/database";
 import type { Locale } from "@/lib/i18n/config";
+import { useI18n } from "@/components/i18n-provider";
 
 interface PhotoWithUrl extends ProgressPhoto {
   url: string | null;
@@ -53,7 +54,8 @@ function inferExtension(file: File): string {
   return "jpg";
 }
 
-export function ProgressPhotosGallery({ locale, clientId, photos }: Props) {
+export function ProgressPhotosGallery({ clientId, photos }: Props) {
+  const { t } = useI18n();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -76,19 +78,11 @@ export function ProgressPhotosGallery({ locale, clientId, photos }: Props) {
   async function handleUpload(file: File, takenOn: string, note: string) {
     setError(null);
     if (file.size > MAX_PHOTO_SIZE_BYTES) {
-      setError(
-        locale === "ar"
-          ? "الصورة أكبر من 8 ميجابايت. اختار صورة أصغر."
-          : "Photo is larger than 8 MB. Pick a smaller one.",
-      );
+      setError(t("client.photos.size_too_large"));
       return;
     }
     if (file.type && !ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      setError(
-        locale === "ar"
-          ? "صيغة الملف مش مدعومة. استخدم JPG أو PNG أو WEBP."
-          : "Unsupported file type. Use JPG, PNG, or WEBP.",
-      );
+      setError(t("client.photos.unsupported_type"));
       return;
     }
     setUploading(true);
@@ -127,14 +121,8 @@ export function ProgressPhotosGallery({ locale, clientId, photos }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">
-          {locale === "ar" ? "صور التقدم" : "Progress photos"}
-        </CardTitle>
-        <CardDescription>
-          {locale === "ar"
-            ? "ارفع صورك. الصور خاصة بيك وبس وبتظهر للكوتش."
-            : "Upload privately. Only you and your coach can see them."}
-        </CardDescription>
+        <CardTitle className="text-base">{t("client.photos.title")}</CardTitle>
+        <CardDescription>{t("client.photos.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <form
@@ -143,7 +131,7 @@ export function ProgressPhotosGallery({ locale, clientId, photos }: Props) {
             const fd = new FormData(e.currentTarget);
             const file = fd.get("photo") as File;
             if (!file || file.size === 0) {
-              setError(locale === "ar" ? "اختار صورة." : "Pick a photo.");
+              setError(t("client.photos.pick_photo"));
               return;
             }
             const takenOn =
@@ -157,9 +145,7 @@ export function ProgressPhotosGallery({ locale, clientId, photos }: Props) {
           className="grid gap-3 sm:grid-cols-[1fr_160px_auto]"
         >
           <div className="space-y-1">
-            <Label htmlFor="photo">
-              {locale === "ar" ? "الصورة" : "Photo"}
-            </Label>
+            <Label htmlFor="photo">{t("client.photos.photo_label")}</Label>
             <Input
               id="photo"
               name="photo"
@@ -168,9 +154,7 @@ export function ProgressPhotosGallery({ locale, clientId, photos }: Props) {
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="taken_on">
-              {locale === "ar" ? "التاريخ" : "Date"}
-            </Label>
+            <Label htmlFor="taken_on">{t("common.date")}</Label>
             <Input
               id="taken_on"
               name="taken_on"
@@ -181,19 +165,11 @@ export function ProgressPhotosGallery({ locale, clientId, photos }: Props) {
           <div className="self-end">
             <Button type="submit" disabled={uploading}>
               <Upload className="h-4 w-4" />
-              {uploading
-                ? locale === "ar"
-                  ? "جاري الرفع…"
-                  : "Uploading…"
-                : locale === "ar"
-                  ? "رفع"
-                  : "Upload"}
+              {uploading ? t("common.uploading") : t("common.upload")}
             </Button>
           </div>
           <div className="space-y-1 sm:col-span-3">
-            <Label htmlFor="note">
-              {locale === "ar" ? "ملاحظة (اختياري)" : "Note (optional)"}
-            </Label>
+            <Label htmlFor="note">{t("common.note_optional")}</Label>
             <Input id="note" name="note" maxLength={200} />
           </div>
         </form>
@@ -205,14 +181,14 @@ export function ProgressPhotosGallery({ locale, clientId, photos }: Props) {
 
         {a && b ? (
           <div className="grid grid-cols-2 gap-3 rounded-md border border-border/60 bg-card/60 p-3">
-            <CompareTile photo={a} locale={locale} />
-            <CompareTile photo={b} locale={locale} />
+            <CompareTile photo={a} t={t} />
+            <CompareTile photo={b} t={t} />
           </div>
         ) : null}
 
         {photos.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            {locale === "ar" ? "مفيش صور لسه." : "No photos yet."}
+            {t("client.photos.no_photos")}
           </p>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -245,9 +221,7 @@ export function ProgressPhotosGallery({ locale, clientId, photos }: Props) {
                       disabled={isPending}
                       onClick={() => {
                         const ok = window.confirm(
-                          locale === "ar"
-                            ? "حذف الصورة؟"
-                            : "Delete this photo?",
+                          t("client.photos.confirm_delete"),
                         );
                         if (!ok) return;
                         startTransition(async () => {
@@ -256,7 +230,7 @@ export function ProgressPhotosGallery({ locale, clientId, photos }: Props) {
                         });
                       }}
                       className="text-destructive hover:opacity-80"
-                      aria-label={locale === "ar" ? "حذف" : "Delete"}
+                      aria-label={t("common.delete")}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -268,9 +242,7 @@ export function ProgressPhotosGallery({ locale, clientId, photos }: Props) {
         )}
         {photos.length >= 2 ? (
           <p className="text-xs text-muted-foreground">
-            {locale === "ar"
-              ? "اضغط على صورتين عشان تقارنهم جنب بعض."
-              : "Click two photos to compare them side by side."}
+            {t("client.photos.compare_hint")}
           </p>
         ) : null}
       </CardContent>
@@ -280,10 +252,10 @@ export function ProgressPhotosGallery({ locale, clientId, photos }: Props) {
 
 function CompareTile({
   photo,
-  locale,
+  t,
 }: {
   photo: PhotoWithUrl;
-  locale: Locale;
+  t: (key: string) => string;
 }) {
   return (
     <div className="space-y-1 text-xs">
@@ -298,7 +270,7 @@ function CompareTile({
       <p className="font-medium">
         {photo.taken_on}{" "}
         <span className="text-muted-foreground">
-          ({locale === "ar" ? "ضغط للإلغاء" : "click to deselect"})
+          ({t("client.photos.compare_deselect")})
         </span>
       </p>
       {photo.note ? (

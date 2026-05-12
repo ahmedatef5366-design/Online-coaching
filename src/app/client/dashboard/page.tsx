@@ -16,6 +16,7 @@ import {
 } from "@/lib/nutrition/queries";
 import { getTodaysCheckin } from "@/lib/tracking/queries";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
+import { getT } from "@/lib/i18n/t";
 import { computeSubscriptionSnapshot } from "@/lib/subscription/status";
 import { SubscriptionBanner } from "@/components/client/subscription-banner";
 import type { SubscriptionStatus } from "@/types/database";
@@ -56,6 +57,7 @@ export default async function ClientDashboardPage() {
     : null;
 
   const locale = readLocaleFromCookie();
+  const t = getT(locale);
   const today = new Date().toISOString().slice(0, 10);
   const [plan, nutritionPlan, todayLogs, todaysCheckin] = clientRow
     ? await Promise.all([
@@ -72,10 +74,10 @@ export default async function ClientDashboardPage() {
     <div className="space-y-6">
       <div>
         <p className="text-sm text-muted-foreground">
-          {locale === "ar" ? "أهلاً بعودتك،" : "Welcome back,"}
+          {t("client.dashboard.welcome")}
         </p>
         <h1 className="font-display text-3xl font-bold tracking-tight">
-          {profile?.full_name ?? (locale === "ar" ? "بطل" : "athlete")}
+          {profile?.full_name ?? t("client.dashboard.athlete_fallback")}
         </h1>
       </div>
 
@@ -86,14 +88,10 @@ export default async function ClientDashboardPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            {locale === "ar" ? "تمرينك" : "Your workout"}
+            {t("client.dashboard.workout_title")}
           </CardTitle>
           <CardDescription>
-            {plan
-              ? plan.plan.name
-              : locale === "ar"
-                ? "لسه ما تم اختيار خطة."
-                : "No plan assigned yet."}
+            {plan ? plan.plan.name : t("client.dashboard.no_plan")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -103,20 +101,16 @@ export default async function ClientDashboardPage() {
               className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
             >
               <Dumbbell className="h-4 w-4" />
-              {locale === "ar" ? "ابدأ التمرين" : "Start workout"}
+              {t("client.dashboard.start_workout")}
               <ArrowRight className="h-4 w-4 rtl:rotate-180" />
             </Link>
           ) : plan ? (
             <p className="text-sm text-muted-foreground">
-              {locale === "ar"
-                ? "الخطة فاضية لسه."
-                : "Your plan has no days yet."}
+              {t("client.dashboard.empty_plan")}
             </p>
           ) : (
             <p className="text-sm text-muted-foreground">
-              {locale === "ar"
-                ? "هتظهر الخطة هنا بمجرد ما الكوتش يعدها."
-                : "Your plan will show up here as soon as your coach builds it."}
+              {t("client.dashboard.plan_pending")}
             </p>
           )}
         </CardContent>
@@ -126,14 +120,12 @@ export default async function ClientDashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
-              {locale === "ar" ? "الماكروز اليوم" : "Macros today"}
+              {t("client.dashboard.macros_today")}
             </CardTitle>
             <CardDescription>
               {nutritionPlan
                 ? `${Math.round(totals.calories)}${nutritionPlan.plan.calories_target ? ` / ${nutritionPlan.plan.calories_target}` : ""} kcal`
-                : locale === "ar"
-                  ? "مفيش خطة لسه."
-                  : "No plan yet."}
+                : t("client.dashboard.no_nutrition_plan")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -141,7 +133,7 @@ export default async function ClientDashboardPage() {
               href="/client/nutrition"
               className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
             >
-              {locale === "ar" ? "افتح التتبع" : "Open tracker"}
+              {t("client.dashboard.open_tracker")}
               <ArrowRight className="h-4 w-4 rtl:rotate-180" />
             </Link>
           </CardContent>
@@ -149,16 +141,12 @@ export default async function ClientDashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
-              {locale === "ar" ? "تشيك-إن اليوم" : "Today's check-in"}
+              {t("client.dashboard.todays_checkin")}
             </CardTitle>
             <CardDescription>
               {todaysCheckin
-                ? locale === "ar"
-                  ? "تم تسجيل اليوم ✓"
-                  : "Submitted ✓"
-                : locale === "ar"
-                  ? "لسه ماتسجلش."
-                  : "Not submitted yet."}
+                ? t("client.dashboard.checkin_submitted")
+                : t("client.dashboard.checkin_pending")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -167,12 +155,8 @@ export default async function ClientDashboardPage() {
               className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
             >
               {todaysCheckin
-                ? locale === "ar"
-                  ? "تعديل التشيك إن"
-                  : "Update check-in"
-                : locale === "ar"
-                  ? "اعمل تشيك إن"
-                  : "Open check-in"}
+                ? t("client.dashboard.checkin_update")
+                : t("client.dashboard.checkin_open")}
               <ArrowRight className="h-4 w-4 rtl:rotate-180" />
             </Link>
           </CardContent>
@@ -182,22 +166,17 @@ export default async function ClientDashboardPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            {locale === "ar" ? "اشتراكي" : "Subscription"}
+            {t("client.dashboard.subscription_title")}
           </CardTitle>
           <CardDescription>
             {subscription && subscription.endsAt
-              ? locale === "ar"
-                ? subscription.daysRemaining !== null &&
-                  subscription.daysRemaining >= 0
-                  ? `ينتهي بعد ${subscription.daysRemaining} يوم`
-                  : "منتهي"
-                : subscription.daysRemaining !== null &&
-                    subscription.daysRemaining >= 0
-                  ? `Ends in ${subscription.daysRemaining} days`
-                  : "Expired"
-              : locale === "ar"
-                ? "عرض حالة الاشتراك والدفعات."
-                : "View subscription status & payment history."}
+              ? subscription.daysRemaining !== null &&
+                subscription.daysRemaining >= 0
+                ? t("client.dashboard.subscription_ends_in_days", {
+                    days: subscription.daysRemaining,
+                  })
+                : t("client.dashboard.subscription_expired")
+              : t("client.dashboard.subscription_default")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -205,7 +184,7 @@ export default async function ClientDashboardPage() {
             href="/client/subscription"
             className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
           >
-            {locale === "ar" ? "افتح" : "Open"}
+            {t("client.dashboard.open")}
             <ArrowRight className="h-4 w-4 rtl:rotate-180" />
           </Link>
         </CardContent>

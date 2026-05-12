@@ -5,6 +5,7 @@ import {
   getThreadMessages,
 } from "@/lib/messages/queries";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
+import { getT } from "@/lib/i18n/t";
 import { MessageThread } from "@/components/messages/message-thread";
 
 export const dynamic = "force-dynamic";
@@ -17,17 +18,16 @@ export default async function ClientMessagesPage() {
   if (!user) redirect("/login");
 
   const locale = readLocaleFromCookie();
+  const t = getT(locale);
   const client = await getCurrentClientForMessaging();
   if (!client) {
     return (
       <div className="space-y-2">
         <h1 className="font-display text-3xl font-bold tracking-tight">
-          {locale === "ar" ? "الرسائل" : "Messages"}
+          {t("client.messages.no_link_title")}
         </h1>
         <p className="text-sm text-muted-foreground">
-          {locale === "ar"
-            ? "حسابك لسه ما اترِبط بكوتش — كلم الكوتش بتاعك."
-            : "Your account isn't linked to a coach yet."}
+          {t("client.messages.no_link_subtitle")}
         </p>
       </div>
     );
@@ -39,12 +39,10 @@ export default async function ClientMessagesPage() {
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-3xl font-bold tracking-tight">
-          {locale === "ar" ? "محادثتك مع الكوتش" : "Chat with your coach"}
+          {t("client.messages.title")}
         </h1>
         <p className="text-sm text-muted-foreground">
-          {locale === "ar"
-            ? "اسأل عن أي حاجة في الخطة أو الأكل أو التمرين."
-            : "Ask anything about your plan, nutrition, or training."}
+          {t("client.messages.subtitle")}
         </p>
       </div>
 

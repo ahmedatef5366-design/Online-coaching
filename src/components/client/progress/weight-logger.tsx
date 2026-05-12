@@ -26,6 +26,7 @@ import { logWeight } from "@/lib/tracking/actions";
 import { withRollingAverage } from "@/lib/tracking/rolling-average";
 import type { WeightLogRow } from "@/types/database";
 import type { Locale } from "@/lib/i18n/config";
+import { useI18n } from "@/components/i18n-provider";
 
 interface Props {
   locale: Locale;
@@ -33,7 +34,8 @@ interface Props {
   weights: WeightLogRow[];
 }
 
-export function WeightLogger({ locale, weights }: Props) {
+export function WeightLogger({ weights }: Props) {
+  const { t } = useI18n();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -64,17 +66,11 @@ export function WeightLogger({ locale, weights }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">
-          {locale === "ar" ? "وزن اليوم" : "Today's weight"}
-        </CardTitle>
+        <CardTitle className="text-base">{t("client.weight.title")}</CardTitle>
         <CardDescription>
           {weeklyAvg !== null
-            ? locale === "ar"
-              ? `متوسط أسبوعي: ${weeklyAvg} كجم`
-              : `7-day average: ${weeklyAvg} kg`
-            : locale === "ar"
-              ? "سجّل وزنك كل يوم الصبح."
-              : "Log your weight every morning."}
+            ? t("client.weight.weekly_average", { kg: weeklyAvg })
+            : t("client.weight.log_morning")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -95,7 +91,7 @@ export function WeightLogger({ locale, weights }: Props) {
                 return;
               }
               setSaved(true);
-              toast.success(locale === "ar" ? "اتسجل الوزن" : "Weight logged");
+              toast.success(t("client.weight.logged_toast"));
               (e.target as HTMLFormElement).reset();
               router.refresh();
             });
@@ -103,9 +99,7 @@ export function WeightLogger({ locale, weights }: Props) {
           className="flex flex-wrap items-end gap-2"
         >
           <div className="min-w-[140px] flex-1 space-y-1">
-            <Label htmlFor="weight_kg">
-              {locale === "ar" ? "الوزن (كجم)" : "Weight (kg)"}
-            </Label>
+            <Label htmlFor="weight_kg">{t("client.weight.weight_label")}</Label>
             <Input
               id="weight_kg"
               name="weight_kg"
@@ -117,17 +111,11 @@ export function WeightLogger({ locale, weights }: Props) {
             />
           </div>
           <Button type="submit" disabled={isPending}>
-            {isPending
-              ? locale === "ar"
-                ? "جاري الحفظ…"
-                : "Saving…"
-              : locale === "ar"
-                ? "تسجيل"
-                : "Log"}
+            {isPending ? t("common.saving") : t("client.weight.log")}
           </Button>
           {saved ? (
             <span className="text-sm text-primary">
-              {locale === "ar" ? "تم ✓" : "Logged ✓"}
+              {t("client.weight.logged")}
             </span>
           ) : null}
         </form>
@@ -155,7 +143,7 @@ export function WeightLogger({ locale, weights }: Props) {
                 />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 <Line
-                  name={locale === "ar" ? "الوزن" : "Weight"}
+                  name={t("client.weight.chart_weight")}
                   type="monotone"
                   dataKey="weight"
                   stroke="hsl(var(--primary))"
@@ -163,7 +151,7 @@ export function WeightLogger({ locale, weights }: Props) {
                   dot={{ r: 3 }}
                 />
                 <Line
-                  name={locale === "ar" ? "متوسط ٧ أيام" : "7-day avg"}
+                  name={t("client.weight.chart_avg")}
                   type="monotone"
                   dataKey="avg"
                   stroke="hsl(var(--muted-foreground))"
@@ -177,9 +165,7 @@ export function WeightLogger({ locale, weights }: Props) {
           </div>
         ) : (
           <p className="text-xs text-muted-foreground">
-            {locale === "ar"
-              ? "يبدأ يظهر الخط بعد يومين على الأقل."
-              : "Chart appears after at least 2 entries."}
+            {t("client.weight.chart_empty")}
           </p>
         )}
       </CardContent>

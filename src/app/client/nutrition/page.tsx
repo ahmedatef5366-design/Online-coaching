@@ -6,6 +6,7 @@ import {
   totalsFromLogs,
 } from "@/lib/nutrition/queries";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
+import { getT } from "@/lib/i18n/t";
 import {
   Card,
   CardDescription,
@@ -28,15 +29,14 @@ export default async function ClientNutritionPage() {
     .maybeSingle()) as { data: { id: string } | null };
 
   const locale = readLocaleFromCookie();
+  const t = getT(locale);
   if (!clientRow) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>{locale === "ar" ? "التغذية" : "Nutrition"}</CardTitle>
+          <CardTitle>{t("client.nutrition.title")}</CardTitle>
           <CardDescription>
-            {locale === "ar"
-              ? "حسابك مش مفعل لسه."
-              : "Your client profile isn't set up yet."}
+            {t("client.nutrition.profile_inactive")}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -55,20 +55,14 @@ export default async function ClientNutritionPage() {
     <div className="space-y-4">
       <div>
         <h1 className="font-display text-3xl font-bold tracking-tight">
-          {locale === "ar" ? "التغذية" : "Nutrition"}
+          {t("client.nutrition.title")}
         </h1>
         <p className="text-sm text-muted-foreground">
           {plan
             ? plan.plan.mode === "fixed"
-              ? locale === "ar"
-                ? "خطة وجبات ثابتة"
-                : "Fixed meal plan"
-              : locale === "ar"
-                ? "ماكروز مرنة (IIFYM)"
-                : "Flexible (IIFYM)"
-            : locale === "ar"
-              ? "مفيش خطة لسه."
-              : "No plan yet."}
+              ? t("client.nutrition.plan_fixed")
+              : t("client.nutrition.plan_flexible")
+            : t("client.nutrition.no_plan")}
         </p>
       </div>
 
