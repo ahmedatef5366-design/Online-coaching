@@ -14,6 +14,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
+import { getT } from "@/lib/i18n/t";
 import { formatDate } from "@/lib/utils";
 import {
   PAYMENT_METHOD_LABEL,
@@ -27,7 +28,7 @@ export const dynamic = "force-dynamic";
 
 export default async function ClientSubscriptionPage() {
   const locale = readLocaleFromCookie();
-  const t = (en: string, ar: string) => (locale === "ar" ? ar : en);
+  const t = getT(locale);
 
   const subscription = await getCurrentClientSubscription();
 
@@ -52,25 +53,22 @@ export default async function ClientSubscriptionPage() {
         className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
-        {t("Back to dashboard", "ارجع للوحة")}
+        {t("client.subscription.back")}
       </Link>
 
       <div>
         <h1 className="font-display text-3xl font-bold tracking-tight">
-          {t("My subscription", "اشتراكي")}
+          {t("client.subscription.title")}
         </h1>
         <p className="text-muted-foreground">
-          {t(
-            "Status, end date, and your payment history.",
-            "الحالة، تاريخ الانتهاء، وسجل الدفعات.",
-          )}
+          {t("client.subscription.subtitle")}
         </p>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            {t("Current status", "الحالة الحالية")}
+            {t("client.subscription.current_status")}
           </CardTitle>
           <CardDescription>
             {subscription ? (
@@ -83,14 +81,14 @@ export default async function ClientSubscriptionPage() {
                 {subscriptionStatusLabel(subscription.snapshot.status, locale)}
               </span>
             ) : (
-              t("No client profile found.", "مفيش ملف عميل.")
+              t("client.subscription.no_profile")
             )}
           </CardDescription>
         </CardHeader>
         {subscription ? (
           <CardContent className="grid gap-3 sm:grid-cols-3">
             <StatField
-              label={t("Ends on", "تاريخ الانتهاء")}
+              label={t("client.subscription.ends_on")}
               value={
                 subscription.snapshot.endsAt
                   ? formatDate(subscription.snapshot.endsAt, locale)
@@ -98,21 +96,21 @@ export default async function ClientSubscriptionPage() {
               }
             />
             <StatField
-              label={t("Days remaining", "أيام متبقية")}
+              label={t("client.subscription.days_remaining")}
               value={
                 subscription.snapshot.daysRemaining === null
                   ? "—"
                   : subscription.snapshot.daysRemaining < 0
-                    ? t("Expired", "انتهى")
+                    ? t("client.subscription.expired")
                     : String(subscription.snapshot.daysRemaining)
               }
             />
             <StatField
-              label={t("Needs action?", "محتاج إجراء؟")}
+              label={t("client.subscription.needs_action")}
               value={
                 subscription.snapshot.isActive
-                  ? t("No", "لأ")
-                  : t("Yes — contact your coach", "أيوه — كلّم الكوتش")
+                  ? t("client.subscription.no")
+                  : t("client.subscription.yes_contact_coach")
               }
             />
           </CardContent>
@@ -122,16 +120,13 @@ export default async function ClientSubscriptionPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            {t("Payment history", "سجل الدفعات")}
+            {t("client.subscription.payment_history")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           {payments.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              {t(
-                "No payments recorded yet.",
-                "لسه مفيش دفعات مسجلة.",
-              )}
+              {t("client.subscription.no_payments")}
             </p>
           ) : (
             <div className="overflow-x-auto">
@@ -139,19 +134,19 @@ export default async function ClientSubscriptionPage() {
                 <thead>
                   <tr className="border-b border-border/60 text-start text-xs uppercase tracking-wider text-muted-foreground">
                     <th className="py-2 pe-3 text-start">
-                      {t("Date", "التاريخ")}
+                      {t("client.subscription.table_date")}
                     </th>
                     <th className="py-2 pe-3 text-start">
-                      {t("Amount", "المبلغ")}
+                      {t("client.subscription.table_amount")}
                     </th>
                     <th className="py-2 pe-3 text-start">
-                      {t("Method", "الوسيلة")}
+                      {t("client.subscription.table_method")}
                     </th>
                     <th className="py-2 pe-3 text-start">
-                      {t("Covers", "الفترة")}
+                      {t("client.subscription.table_covers")}
                     </th>
                     <th className="py-2 pe-3 text-start">
-                      {t("Status", "الحالة")}
+                      {t("client.subscription.table_status")}
                     </th>
                   </tr>
                 </thead>

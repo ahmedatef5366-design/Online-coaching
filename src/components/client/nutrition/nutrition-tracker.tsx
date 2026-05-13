@@ -19,6 +19,7 @@ import type {
   PlanWithMeals,
 } from "@/lib/nutrition/queries";
 import type { Locale } from "@/lib/i18n/config";
+import { useI18n } from "@/components/i18n-provider";
 
 interface Props {
   locale: Locale;
@@ -37,22 +38,19 @@ export function ClientNutritionTracker({
   totals,
   today,
 }: Props) {
+  const { t } = useI18n();
   if (!plan) {
     return (
       <Card>
         <CardHeader>
-          <CardDescription>
-            {locale === "ar"
-              ? "لسه ما تم اختيار خطة. هتظهر هنا بمجرد ما الكوتش يعدها."
-              : "No plan yet. Show up here once your coach assigns one."}
-          </CardDescription>
+          <CardDescription>{t("client.nutrition.no_plan")}</CardDescription>
         </CardHeader>
       </Card>
     );
   }
 
   if (plan.plan.mode === "fixed") {
-    return <FixedMealView locale={locale} plan={plan} totals={totals} />;
+    return <FixedMealView plan={plan} totals={totals} />;
   }
 
   return (
@@ -68,18 +66,16 @@ export function ClientNutritionTracker({
 }
 
 function FixedMealView({
-  locale,
   plan,
   totals,
 }: {
-  locale: Locale;
   plan: PlanWithMeals;
   totals: MacroTotals;
 }) {
+  const { t } = useI18n();
   return (
     <div className="space-y-4">
       <MacroSummary
-        locale={locale}
         targets={{
           calories: plan.plan.calories_target,
           protein: plan.plan.protein_target,
@@ -92,9 +88,7 @@ function FixedMealView({
         {plan.meals.length === 0 ? (
           <Card>
             <CardContent className="py-6 text-center text-sm text-muted-foreground">
-              {locale === "ar"
-                ? "مفيش وجبات في الخطة لسه."
-                : "Your plan doesn't have meals yet."}
+              {t("client.nutrition.no_meals")}
             </CardContent>
           </Card>
         ) : (
@@ -153,6 +147,7 @@ function FlexibleTracker({
   totals: MacroTotals;
   today: string;
 }) {
+  const { t } = useI18n();
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [pickedFoodId, setPickedFoodId] = useState<string>("");
@@ -175,7 +170,6 @@ function FlexibleTracker({
   return (
     <div className="space-y-4">
       <MacroSummary
-        locale={locale}
         targets={{
           calories: plan.plan.calories_target,
           protein: plan.plan.protein_target,
@@ -188,14 +182,14 @@ function FlexibleTracker({
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            {locale === "ar" ? "إضافة وجبة" : "Log food"}
+            {t("client.nutrition.log_food")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={locale === "ar" ? "ابحث عن صنف…" : "Search foods…"}
+            placeholder={t("client.nutrition.search_foods")}
           />
           <div className="grid gap-2 sm:grid-cols-[1fr_120px_auto]">
             <select
@@ -203,9 +197,7 @@ function FlexibleTracker({
               onChange={(e) => setPickedFoodId(e.target.value)}
               className="h-10 rounded-md border border-input bg-background px-3 text-sm"
             >
-              <option value="">
-                {locale === "ar" ? "اختار صنف…" : "Pick a food…"}
-              </option>
+              <option value="">{t("client.nutrition.pick_food")}</option>
               {filtered.map((f) => (
                 <option key={f.id} value={f.id}>
                   {locale === "ar" && f.name_ar ? f.name_ar : f.name}
@@ -215,7 +207,7 @@ function FlexibleTracker({
             <Input
               type="number"
               min={1}
-              placeholder={locale === "ar" ? "جم" : "grams"}
+              placeholder={t("client.nutrition.grams")}
               value={grams}
               onChange={(e) => setGrams(e.target.value)}
             />
@@ -240,7 +232,7 @@ function FlexibleTracker({
                 });
               }}
             >
-              {locale === "ar" ? "إضافة" : "Add"}
+              {t("common.add")}
             </Button>
           </div>
           {error ? (
@@ -254,15 +246,13 @@ function FlexibleTracker({
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            {locale === "ar" ? "وجبات اليوم" : "Today's log"}
+            {t("client.nutrition.today_log")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           {logs.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              {locale === "ar"
-                ? "مفيش وجبات لسه اليوم."
-                : "Nothing logged yet today."}
+              {t("client.nutrition.nothing_logged")}
             </p>
           ) : (
             <ul className="space-y-2">
@@ -297,7 +287,7 @@ function FlexibleTracker({
                     }}
                     className="text-xs text-destructive hover:underline"
                   >
-                    {locale === "ar" ? "حذف" : "Remove"}
+                    {t("common.remove")}
                   </button>
                 </li>
               ))}
@@ -310,11 +300,9 @@ function FlexibleTracker({
 }
 
 function MacroSummary({
-  locale,
   targets,
   totals,
 }: {
-  locale: Locale;
   targets: {
     calories: number | null;
     protein: number | null;
@@ -323,6 +311,7 @@ function MacroSummary({
   };
   totals: MacroTotals;
 }) {
+  const { t } = useI18n();
   const entries: {
     key: string;
     label: string;
@@ -332,28 +321,28 @@ function MacroSummary({
   }[] = [
     {
       key: "kcal",
-      label: locale === "ar" ? "سعرات" : "Calories",
+      label: t("client.nutrition.macro_calories"),
       value: totals.calories,
       target: targets.calories,
       color: "hsl(var(--primary))",
     },
     {
       key: "p",
-      label: locale === "ar" ? "بروتين" : "Protein",
+      label: t("client.nutrition.macro_protein"),
       value: totals.protein,
       target: targets.protein,
       color: "hsl(160 84% 45%)",
     },
     {
       key: "c",
-      label: locale === "ar" ? "كارب" : "Carbs",
+      label: t("client.nutrition.macro_carbs"),
       value: totals.carbs,
       target: targets.carbs,
       color: "hsl(40 96% 55%)",
     },
     {
       key: "f",
-      label: locale === "ar" ? "دهون" : "Fat",
+      label: t("client.nutrition.macro_fat"),
       value: totals.fat,
       target: targets.fat,
       color: "hsl(340 80% 60%)",

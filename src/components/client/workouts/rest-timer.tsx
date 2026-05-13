@@ -2,12 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import type { Locale } from "@/lib/i18n/config";
+import { useI18n } from "@/components/i18n-provider";
 
 interface Props {
   seconds: number;
   exerciseName: string;
-  locale: Locale;
   onComplete: () => void;
   onSkip: () => void;
 }
@@ -45,10 +44,10 @@ function tryVibrate() {
 export function RestTimer({
   seconds,
   exerciseName,
-  locale,
   onComplete,
   onSkip,
 }: Props) {
+  const { t } = useI18n();
   const [remaining, setRemaining] = useState(seconds);
   const done = remaining <= 0;
   const frameRef = useRef<number | null>(null);
@@ -86,7 +85,7 @@ export function RestTimer({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm">
       <div className="flex flex-col items-center gap-4 rounded-2xl bg-card p-8 shadow-xl">
         <p className="text-sm text-muted-foreground">
-          {locale === "ar" ? "فترة الراحة" : "Rest period"} · {exerciseName}
+          {t("client.workout_session.timer_rest_period")} · {exerciseName}
         </p>
         <div className="relative flex items-center justify-center">
           <svg
@@ -117,16 +116,16 @@ export function RestTimer({
             />
           </svg>
           <span className="absolute text-3xl font-bold tabular-nums">
-            {done ? (locale === "ar" ? "خلصت" : "Go!") : remaining}
+            {done ? t("client.workout_session.timer_go") : remaining}
           </span>
         </div>
         <div className="flex gap-2">
           <Button variant="ghost" onClick={onSkip}>
-            {locale === "ar" ? "تخطي" : "Skip"}
+            {t("client.workout_session.timer_skip")}
           </Button>
           {done ? (
             <Button onClick={onComplete}>
-              {locale === "ar" ? "المجموعة الجاية" : "Next set"}
+              {t("client.workout_session.timer_next_set")}
             </Button>
           ) : null}
         </div>

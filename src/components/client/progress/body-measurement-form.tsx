@@ -16,33 +16,27 @@ import {
 import { saveBodyMeasurement } from "@/lib/tracking/actions";
 import type { BodyMeasurement } from "@/types/database";
 import type { Locale } from "@/lib/i18n/config";
+import { useI18n } from "@/components/i18n-provider";
 
 const FIELDS = [
-  { key: "weight_kg", labelEn: "Weight (kg)", labelAr: "الوزن (كجم)" },
-  { key: "waist_cm", labelEn: "Waist (cm)", labelAr: "الخصر (سم)" },
-  { key: "chest_cm", labelEn: "Chest (cm)", labelAr: "الصدر (سم)" },
-  { key: "shoulders_cm", labelEn: "Shoulders (cm)", labelAr: "الأكتاف (سم)" },
-  { key: "hips_cm", labelEn: "Hips (cm)", labelAr: "الورك (سم)" },
-  { key: "left_arm_cm", labelEn: "L. Arm (cm)", labelAr: "الذراع الشمال (سم)" },
-  {
-    key: "right_arm_cm",
-    labelEn: "R. Arm (cm)",
-    labelAr: "الذراع اليمين (سم)",
-  },
+  { key: "weight_kg", labelKey: "client.measurements.fields.weight_kg" },
+  { key: "waist_cm", labelKey: "client.measurements.fields.waist_cm" },
+  { key: "chest_cm", labelKey: "client.measurements.fields.chest_cm" },
+  { key: "shoulders_cm", labelKey: "client.measurements.fields.shoulders_cm" },
+  { key: "hips_cm", labelKey: "client.measurements.fields.hips_cm" },
+  { key: "left_arm_cm", labelKey: "client.measurements.fields.left_arm_cm" },
+  { key: "right_arm_cm", labelKey: "client.measurements.fields.right_arm_cm" },
   {
     key: "left_thigh_cm",
-    labelEn: "L. Thigh (cm)",
-    labelAr: "الفخذ الشمال (سم)",
+    labelKey: "client.measurements.fields.left_thigh_cm",
   },
   {
     key: "right_thigh_cm",
-    labelEn: "R. Thigh (cm)",
-    labelAr: "الفخذ اليمين (سم)",
+    labelKey: "client.measurements.fields.right_thigh_cm",
   },
   {
     key: "body_fat_percent",
-    labelEn: "Body fat %",
-    labelAr: "نسبة الدهون %",
+    labelKey: "client.measurements.fields.body_fat_percent",
   },
 ] as const;
 
@@ -54,7 +48,8 @@ interface Props {
   history: BodyMeasurement[];
 }
 
-export function BodyMeasurementForm({ locale, latest, history }: Props) {
+export function BodyMeasurementForm({ latest, history }: Props) {
+  const { t } = useI18n();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -64,12 +59,10 @@ export function BodyMeasurementForm({ locale, latest, history }: Props) {
     <Card>
       <CardHeader>
         <CardTitle className="text-base">
-          {locale === "ar" ? "قياسات الجسم" : "Body measurements"}
+          {t("client.measurements.title")}
         </CardTitle>
         <CardDescription>
-          {locale === "ar"
-            ? "سجّل قياساتك مرة في الأسبوع. أحدث قياس بيتعرض في صفحة التحليل."
-            : "Log measurements weekly. Latest values are surfaced to your coach."}
+          {t("client.measurements.description")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -93,18 +86,14 @@ export function BodyMeasurementForm({ locale, latest, history }: Props) {
                 return;
               }
               setSaved(true);
-              toast.success(
-                locale === "ar" ? "تم حفظ القياسات" : "Measurements saved",
-              );
+              toast.success(t("client.measurements.saved_toast"));
               router.refresh();
             });
           }}
           className="space-y-3"
         >
           <div className="space-y-1">
-            <Label htmlFor="measured_on">
-              {locale === "ar" ? "التاريخ" : "Date"}
-            </Label>
+            <Label htmlFor="measured_on">{t("common.date")}</Label>
             <Input
               id="measured_on"
               name="measured_on"
@@ -115,9 +104,7 @@ export function BodyMeasurementForm({ locale, latest, history }: Props) {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {FIELDS.map((f) => (
               <div key={f.key} className="space-y-1">
-                <Label htmlFor={f.key}>
-                  {locale === "ar" ? f.labelAr : f.labelEn}
-                </Label>
+                <Label htmlFor={f.key}>{t(f.labelKey)}</Label>
                 <Input
                   id={f.key}
                   name={f.key}
@@ -135,18 +122,10 @@ export function BodyMeasurementForm({ locale, latest, history }: Props) {
           </div>
           <div className="flex items-center gap-3">
             <Button type="submit" disabled={isPending}>
-              {isPending
-                ? locale === "ar"
-                  ? "جاري الحفظ…"
-                  : "Saving…"
-                : locale === "ar"
-                  ? "حفظ القياسات"
-                  : "Save measurements"}
+              {isPending ? t("common.saving") : t("client.measurements.save")}
             </Button>
             {saved ? (
-              <span className="text-sm text-primary">
-                {locale === "ar" ? "تم الحفظ ✓" : "Saved ✓"}
-              </span>
+              <span className="text-sm text-primary">{t("common.saved")}</span>
             ) : null}
           </div>
           {error ? (
@@ -159,26 +138,24 @@ export function BodyMeasurementForm({ locale, latest, history }: Props) {
         {history.length > 0 ? (
           <div className="overflow-x-auto pt-3">
             <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              {locale === "ar" ? "أحدث ٦ قياسات" : "Last 6 entries"}
+              {t("client.measurements.last_six")}
             </p>
             <table className="w-full min-w-[600px] text-xs">
               <thead>
                 <tr className="border-b border-border/60 text-muted-foreground">
-                  <th className="py-2 pe-2 text-start">
-                    {locale === "ar" ? "التاريخ" : "Date"}
-                  </th>
+                  <th className="py-2 pe-2 text-start">{t("common.date")}</th>
                   <th className="py-2 pe-2 text-end">kg</th>
                   <th className="py-2 pe-2 text-end">
-                    {locale === "ar" ? "خصر" : "Waist"}
+                    {t("client.measurements.table_waist")}
                   </th>
                   <th className="py-2 pe-2 text-end">
-                    {locale === "ar" ? "صدر" : "Chest"}
+                    {t("client.measurements.table_chest")}
                   </th>
                   <th className="py-2 pe-2 text-end">
-                    {locale === "ar" ? "ذراع" : "Arm"}
+                    {t("client.measurements.table_arm")}
                   </th>
                   <th className="py-2 pe-2 text-end">
-                    {locale === "ar" ? "فخذ" : "Thigh"}
+                    {t("client.measurements.table_thigh")}
                   </th>
                   <th className="py-2 pe-2 text-end">BF%</th>
                 </tr>

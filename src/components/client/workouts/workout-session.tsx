@@ -28,15 +28,11 @@ import { getYouTubeEmbedUrl } from "@/lib/workouts/youtube";
 import { safeHttpUrl } from "@/lib/utils/safe-url";
 import { cn } from "@/lib/utils";
 import type { Exercise, WorkoutLog } from "@/types/database";
-import type { Locale } from "@/lib/i18n/config";
-import type {
-  LastSessionSummary,
-  PrSummary,
-} from "@/lib/workouts/queries";
+import type { LastSessionSummary, PrSummary } from "@/lib/workouts/queries";
 import { RestTimer } from "./rest-timer";
+import { useI18n } from "@/components/i18n-provider";
 
 interface Props {
-  locale: Locale;
   exercises: Exercise[];
   existingLogs: WorkoutLog[];
   lastSessions: Record<string, LastSessionSummary>;
@@ -88,7 +84,6 @@ function formatNumber(n: number): string {
 }
 
 export function WorkoutSession({
-  locale,
   exercises,
   existingLogs,
   lastSessions,
@@ -171,7 +166,6 @@ export function WorkoutSession({
   if (finished) {
     return (
       <WorkoutSummary
-        locale={locale}
         exercises={exercises}
         logs={logs}
         lastSessions={lastSessions}
@@ -194,7 +188,6 @@ export function WorkoutSession({
           key={`${timerInfo.exerciseName}-${timerInfo.seconds}-${Date.now()}`}
           seconds={timerInfo.seconds}
           exerciseName={timerInfo.exerciseName}
-          locale={locale}
           onComplete={() => setTimerInfo(null)}
           onSkip={() => setTimerInfo(null)}
         />
@@ -207,14 +200,12 @@ export function WorkoutSession({
         onSelect={setCurrentIdx}
         totalSets={totalSets}
         targetTotalSets={targetTotalSets}
-        locale={locale}
       />
 
       <ExerciseCard
         exercise={current}
         index={currentIdx}
         total={exercises.length}
-        locale={locale}
         today={today}
         completedSets={logs.get(current.id) ?? []}
         lastSession={lastSessions[current.id] ?? null}
@@ -240,12 +231,13 @@ export function WorkoutSession({
       />
 
       <SessionFooter
-        locale={locale}
         currentIdx={currentIdx}
         total={exercises.length}
         allComplete={allComplete}
         onPrev={() => setCurrentIdx((i) => Math.max(0, i - 1))}
-        onNext={() => setCurrentIdx((i) => Math.min(exercises.length - 1, i + 1))}
+        onNext={() =>
+          setCurrentIdx((i) => Math.min(exercises.length - 1, i + 1))
+        }
         onFinish={() => setFinished(true)}
       />
     </div>
@@ -259,7 +251,6 @@ function SessionProgress({
   onSelect,
   totalSets,
   targetTotalSets,
-  locale,
 }: {
   exercises: Exercise[];
   logs: LogsByExercise;
@@ -267,22 +258,23 @@ function SessionProgress({
   onSelect: (idx: number) => void;
   totalSets: number;
   targetTotalSets: number;
-  locale: Locale;
 }) {
-  const pct = targetTotalSets > 0
-    ? Math.min(100, Math.round((totalSets / targetTotalSets) * 100))
-    : 0;
+  const { t } = useI18n();
+  const pct =
+    targetTotalSets > 0
+      ? Math.min(100, Math.round((totalSets / targetTotalSets) * 100))
+      : 0;
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>
-          {locale === "ar"
-            ? `تمرين ${currentIdx + 1} من ${exercises.length}`
-            : `Exercise ${currentIdx + 1} of ${exercises.length}`}
+          {t("client.workout_session.exercise_x_of_y", {
+            index: currentIdx + 1,
+            total: exercises.length,
+          })}
         </span>
         <span className="tabular-nums">
-          {totalSets} / {targetTotalSets}{" "}
-          {locale === "ar" ? "سيت" : "sets"}
+          {totalSets} / {targetTotalSets} {t("client.workout_session.sets")}
         </span>
       </div>
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
@@ -325,7 +317,6 @@ function ExerciseCard({
   exercise,
   index,
   total,
-  locale,
   today,
   completedSets,
   lastSession,
@@ -334,12 +325,12 @@ function ExerciseCard({
   exercise: Exercise;
   index: number;
   total: number;
-  locale: Locale;
   today: string;
   completedSets: SetEntry[];
   lastSession: LastSessionSummary | null;
   onSetLogged: (entry: SetEntry) => void;
 }) {
+  const { t } = useI18n();
   const nextSetNumber = completedSets.length + 1;
   const allDone = completedSets.length >= exercise.sets;
   const embedUrl = useMemo(
@@ -461,9 +452,10 @@ function ExerciseCard({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <p className="text-xs uppercase tracking-wider text-muted-foreground">
-              {locale === "ar"
-                ? `تمرين ${index + 1} من ${total}`
-                : `Exercise ${index + 1} of ${total}`}
+              {t("client.workout_session.exercise_x_of_y", {
+                index: index + 1,
+                total,
+              })}
             </p>
             <CardTitle className="font-display text-2xl leading-tight">
               {exercise.name}
@@ -473,7 +465,7 @@ function ExerciseCard({
                 {exercise.sets} × {exercise.reps}
               </span>
               {" · "}
-              {locale === "ar" ? "راحة" : "rest"} {exercise.rest_seconds}s
+              {t("client.workout_session.rest")} {exercise.rest_seconds}s
             </p>
           </div>
           {embedUrl || safeVideoUrl ? (
@@ -484,12 +476,8 @@ function ExerciseCard({
             >
               <Video className="h-3.5 w-3.5" />
               {showVideo
-                ? locale === "ar"
-                  ? "إخفاء"
-                  : "Hide"
-                : locale === "ar"
-                  ? "الفيديو"
-                  : "Video"}
+                ? t("client.workout_session.hide")
+                : t("client.workout_session.video")}
             </button>
           ) : null}
         </div>
@@ -512,7 +500,7 @@ function ExerciseCard({
             rel="noopener noreferrer"
             className="text-sm text-primary hover:underline"
           >
-            {locale === "ar" ? "افتح الفيديو" : "Open video"}
+            {t("client.workout_session.open_video")}
           </a>
         ) : null}
 
@@ -526,7 +514,7 @@ function ExerciseCard({
           <div className="flex items-center gap-2 rounded-md border border-border/40 bg-secondary/30 px-3 py-2 text-xs text-muted-foreground">
             <History className="h-3.5 w-3.5 shrink-0 text-primary" />
             <span className="truncate">
-              {locale === "ar" ? "آخر مرة:" : "Last time:"}{" "}
+              {t("client.workout_session.last_time")}{" "}
               <span className="font-semibold text-foreground">
                 {lastSession.sets
                   .slice(0, 4)
@@ -545,9 +533,9 @@ function ExerciseCard({
           <div className="flex items-start gap-2 rounded-md border border-primary/30 bg-primary/10 px-3 py-2 text-xs text-primary">
             <TrendingUp className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             <span>
-              {locale === "ar"
-                ? `آخر مرة كملت كل العدّات — جرب ${formatNumber(overloadHint.suggested)}kg المرة دي 💪`
-                : `Hit every rep last time — try ${formatNumber(overloadHint.suggested)}kg today 💪`}
+              {t("client.workout_session.overload_hint", {
+                weight: formatNumber(overloadHint.suggested),
+              })}
             </span>
           </div>
         ) : null}
@@ -556,7 +544,6 @@ function ExerciseCard({
       <CardContent className="space-y-3">
         <SetsTable
           exercise={exercise}
-          locale={locale}
           completedSets={completedSets}
           lastSession={lastSession}
         />
@@ -564,14 +551,12 @@ function ExerciseCard({
         {allDone ? (
           <div className="flex items-center justify-center gap-2 rounded-md border border-primary/30 bg-primary/10 px-3 py-3 text-sm font-medium text-primary">
             <Check className="h-4 w-4" />
-            {locale === "ar" ? "كل المجموعات تمت!" : "All sets complete!"}
+            {t("client.workout_session.all_sets_complete")}
           </div>
         ) : (
           <div className="space-y-2">
             <p className="text-xs uppercase tracking-wider text-muted-foreground">
-              {locale === "ar"
-                ? `سيت ${nextSetNumber}`
-                : `Set ${nextSetNumber}`}
+              {t("client.workout_session.set_n", { n: nextSetNumber })}
             </p>
             <div className="flex items-end gap-2">
               <div className="flex-1 space-y-1">
@@ -579,7 +564,7 @@ function ExerciseCard({
                   htmlFor={`weight-${exercise.id}`}
                   className="text-xs text-muted-foreground"
                 >
-                  {locale === "ar" ? "الوزن (كجم)" : "Weight (kg)"}
+                  {t("client.workout_session.weight_kg_label")}
                 </label>
                 <Input
                   id={`weight-${exercise.id}`}
@@ -599,7 +584,7 @@ function ExerciseCard({
                   htmlFor={`reps-${exercise.id}`}
                   className="text-xs text-muted-foreground"
                 >
-                  {locale === "ar" ? "العدّات" : "Reps"}
+                  {t("client.workout_session.reps_label")}
                 </label>
                 <Input
                   id={`reps-${exercise.id}`}
@@ -620,11 +605,7 @@ function ExerciseCard({
                 onClick={handleLog}
               >
                 <Check className="h-4 w-4" />
-                {isPending
-                  ? "…"
-                  : locale === "ar"
-                    ? "خلصت السيت"
-                    : "Log set"}
+                {isPending ? "…" : t("client.workout_session.log_set")}
               </Button>
             </div>
             {error ? (
@@ -641,15 +622,14 @@ function ExerciseCard({
 
 function SetsTable({
   exercise,
-  locale,
   completedSets,
   lastSession,
 }: {
   exercise: Exercise;
-  locale: Locale;
   completedSets: SetEntry[];
   lastSession: LastSessionSummary | null;
 }) {
+  const { t } = useI18n();
   const rows = Array.from({ length: exercise.sets }, (_, i) => i + 1);
   return (
     <div className="overflow-hidden rounded-lg border border-border/40">
@@ -657,13 +637,13 @@ function SetsTable({
         <thead className="bg-secondary/30 text-xs uppercase tracking-wider text-muted-foreground">
           <tr>
             <th className="w-12 px-3 py-2 text-start">
-              {locale === "ar" ? "سيت" : "Set"}
+              {t("client.workout_session.set")}
             </th>
             <th className="px-3 py-2 text-start">
-              {locale === "ar" ? "آخر مرة" : "Last"}
+              {t("client.workout_session.last")}
             </th>
             <th className="px-3 py-2 text-end">
-              {locale === "ar" ? "النهارده" : "Today"}
+              {t("client.workout_session.today")}
             </th>
             <th className="w-10 px-3 py-2" aria-label="status" />
           </tr>
@@ -684,7 +664,7 @@ function SetsTable({
                 <td className="px-3 py-2 font-semibold tabular-nums">
                   {setNumber}
                 </td>
-                <td className="px-3 py-2 text-xs text-muted-foreground tabular-nums">
+                <td className="px-3 py-2 text-xs tabular-nums text-muted-foreground">
                   {lastForSet
                     ? `${formatNumber(lastForSet.weight_kg ?? 0)}kg × ${lastForSet.reps_done ?? 0}`
                     : "—"}
@@ -709,7 +689,6 @@ function SetsTable({
 }
 
 function SessionFooter({
-  locale,
   currentIdx,
   total,
   allComplete,
@@ -717,7 +696,6 @@ function SessionFooter({
   onNext,
   onFinish,
 }: {
-  locale: Locale;
   currentIdx: number;
   total: number;
   allComplete: boolean;
@@ -725,6 +703,7 @@ function SessionFooter({
   onNext: () => void;
   onFinish: () => void;
 }) {
+  const { t } = useI18n();
   const atFirst = currentIdx === 0;
   const atLast = currentIdx >= total - 1;
   return (
@@ -743,7 +722,7 @@ function SessionFooter({
           className="gap-1"
         >
           <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
-          {locale === "ar" ? "السابق" : "Prev"}
+          {t("client.workout_session.prev")}
         </Button>
         <Button
           variant={allComplete ? "default" : "outline"}
@@ -752,13 +731,9 @@ function SessionFooter({
           className="gap-1"
         >
           <Flag className="h-4 w-4" />
-          {locale === "ar"
-            ? allComplete
-              ? "خلص التمرين"
-              : "إنهاء"
-            : allComplete
-              ? "Finish workout"
-              : "Finish"}
+          {allComplete
+            ? t("client.workout_session.finish_workout")
+            : t("client.workout_session.finish")}
         </Button>
         <Button
           variant="ghost"
@@ -767,7 +742,7 @@ function SessionFooter({
           disabled={atLast}
           className="gap-1"
         >
-          {locale === "ar" ? "التالي" : "Next"}
+          {t("client.workout_session.next")}
           <ChevronRight className="h-4 w-4 rtl:rotate-180" />
         </Button>
       </div>
@@ -776,7 +751,6 @@ function SessionFooter({
 }
 
 function WorkoutSummary({
-  locale,
   exercises,
   logs,
   lastSessions,
@@ -786,7 +760,6 @@ function WorkoutSummary({
   durationMs,
   onBack,
 }: {
-  locale: Locale;
   exercises: Exercise[];
   logs: LogsByExercise;
   lastSessions: Record<string, LastSessionSummary>;
@@ -796,6 +769,7 @@ function WorkoutSummary({
   durationMs: number;
   onBack: () => void;
 }) {
+  const { t } = useI18n();
   // Per-exercise comparison vs the previous session (volume) + lifetime PR
   // detection (heaviest weight or best estimated 1RM).
   const breakdown = useMemo(
@@ -819,8 +793,7 @@ function WorkoutSummary({
         const last = lastSessions[ex.id] ?? null;
         const lastVolume = last
           ? last.sets.reduce(
-              (sum, s) =>
-                sum + (s.weight_kg ?? 0) * (s.reps_done ?? 0),
+              (sum, s) => sum + (s.weight_kg ?? 0) * (s.reps_done ?? 0),
               0,
             )
           : 0;
@@ -853,34 +826,36 @@ function WorkoutSummary({
       <Card>
         <CardHeader className="space-y-2 text-center">
           <p className="text-sm text-muted-foreground">
-            {locale === "ar" ? "خلصت الحصة 💪" : "Workout complete 💪"}
+            {t("client.workout_session.summary_done")}
           </p>
           <CardTitle className="font-display text-3xl">
-            {locale === "ar" ? "شغل نضيف!" : "Nice work!"}
+            {t("client.workout_session.summary_nice_work")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-3 gap-3 text-center">
             <SummaryStat
               value={formatNumber(totalVolume)}
-              label={locale === "ar" ? "حجم الحمل (كجم)" : "Volume (kg)"}
+              label={t("client.workout_session.summary_volume")}
             />
             <SummaryStat
               value={String(totalSets)}
-              label={locale === "ar" ? "سيتس متعملة" : "Sets done"}
+              label={t("client.workout_session.summary_sets_done")}
             />
             <SummaryStat
               value={`${durationMinutes}'`}
-              label={locale === "ar" ? "المدة" : "Duration"}
+              label={t("client.workout_session.summary_duration")}
             />
           </div>
 
           {prCount > 0 ? (
             <div className="flex items-center justify-center gap-2 rounded-md bg-accent/10 px-3 py-2 text-sm text-accent">
               <Trophy className="h-4 w-4" />
-              {locale === "ar"
-                ? `${prCount} ${prCount === 1 ? "PR جديد" : "PR جديدة"} 🏆`
-                : `${prCount} new ${prCount === 1 ? "PR" : "PRs"} 🏆`}
+              {prCount === 1
+                ? t("client.workout_session.summary_pr_one", { count: prCount })
+                : t("client.workout_session.summary_pr_many", {
+                    count: prCount,
+                  })}
             </div>
           ) : null}
         </CardContent>
@@ -889,7 +864,7 @@ function WorkoutSummary({
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-base">
-            {locale === "ar" ? "تفاصيل التمارين" : "Per-exercise breakdown"}
+            {t("client.workout_session.summary_breakdown")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -900,9 +875,9 @@ function WorkoutSummary({
             >
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{b.ex.name}</p>
-                <p className="text-xs text-muted-foreground tabular-nums">
+                <p className="text-xs tabular-nums text-muted-foreground">
                   {b.completedCount}/{b.ex.sets}{" "}
-                  {locale === "ar" ? "سيت" : "sets"}
+                  {t("client.workout_session.sets")}
                   {" · "}
                   {formatNumber(b.volume)} kg
                 </p>
@@ -912,7 +887,9 @@ function WorkoutSummary({
                   <span
                     className={cn(
                       "inline-flex items-center gap-1 tabular-nums",
-                      b.volumeDelta > 0 ? "text-primary" : "text-muted-foreground",
+                      b.volumeDelta > 0
+                        ? "text-primary"
+                        : "text-muted-foreground",
                     )}
                   >
                     <TrendingUp
@@ -928,7 +905,7 @@ function WorkoutSummary({
                 {b.isWeightPr || b.isE1rmPr ? (
                   <span className="inline-flex items-center gap-1 text-accent">
                     <Trophy className="h-3.5 w-3.5" />
-                    {locale === "ar" ? "PR" : "PR"}
+                    PR
                   </span>
                 ) : null}
               </div>
@@ -940,13 +917,13 @@ function WorkoutSummary({
       <div className="flex flex-wrap items-center justify-center gap-2">
         <Button variant="outline" onClick={onBack} className="gap-2">
           <Dumbbell className="h-4 w-4" />
-          {locale === "ar" ? "رجوع للتمرين" : "Back to workout"}
+          {t("client.workout_session.back_to_workout")}
         </Button>
         <Link
           href="/client/checkin"
           className={buttonVariants({ variant: "default" })}
         >
-          {locale === "ar" ? "اعمل تشيك إن دلوقتي" : "Submit today's check-in"}
+          {t("client.workout_session.submit_checkin_cta")}
         </Link>
       </div>
     </div>

@@ -6,6 +6,7 @@ import {
   getProgressPhotoSignedUrls,
 } from "@/lib/tracking/queries";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
+import { getT } from "@/lib/i18n/t";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { WeightLogger } from "@/components/client/progress/weight-logger";
 import { BodyMeasurementForm } from "@/components/client/progress/body-measurement-form";
@@ -25,11 +26,12 @@ export default async function ClientProgressPage() {
     .maybeSingle()) as { data: { id: string } | null };
 
   const locale = readLocaleFromCookie();
+  const t = getT(locale);
   if (!clientRow) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>{locale === "ar" ? "التقدم" : "Progress"}</CardTitle>
+          <CardTitle>{t("client.progress.title")}</CardTitle>
         </CardHeader>
       </Card>
     );
@@ -52,12 +54,10 @@ export default async function ClientProgressPage() {
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-3xl font-bold tracking-tight">
-          {locale === "ar" ? "التقدم" : "Progress"}
+          {t("client.progress.title")}
         </h1>
         <p className="text-sm text-muted-foreground">
-          {locale === "ar"
-            ? "وزنك وقياساتك وصورك."
-            : "Your weight, measurements, and photos."}
+          {t("client.progress.description")}
         </p>
       </div>
 

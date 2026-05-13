@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import { sendMessage, markThreadRead } from "@/lib/messages/actions";
 import type { Message } from "@/types/database";
 import type { Locale } from "@/lib/i18n/config";
+import { useI18n } from "@/components/i18n-provider";
 
 interface Props {
   clientId: string;
@@ -40,6 +41,7 @@ export function MessageThread({
   locale,
   otherPartyName,
 }: Props) {
+  const { t } = useI18n();
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [body, setBody] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -131,13 +133,9 @@ export function MessageThread({
       <div className="flex-1 overflow-y-auto px-4 py-4">
         {messages.length === 0 ? (
           <p className="py-12 text-center text-sm text-muted-foreground">
-            {locale === "ar"
-              ? otherPartyName
-                ? `ابدأ المحادثة مع ${otherPartyName}.`
-                : "ابدأ المحادثة."
-              : otherPartyName
-                ? `Send the first message to ${otherPartyName}.`
-                : "No messages yet — say hi."}
+            {otherPartyName
+              ? t("messages_thread.empty_with_name", { name: otherPartyName })
+              : t("messages_thread.empty_generic")}
           </p>
         ) : (
           <ul className="space-y-2">
@@ -190,11 +188,7 @@ export function MessageThread({
               handleSend();
             }
           }}
-          placeholder={
-            locale === "ar"
-              ? "اكتب رسالة… (Shift+Enter للسطر الجديد)"
-              : "Write a message… (Shift+Enter for newline)"
-          }
+          placeholder={t("messages_thread.placeholder")}
           rows={2}
           maxLength={4000}
           className="min-h-[44px] resize-none"
@@ -202,10 +196,10 @@ export function MessageThread({
         <Button
           type="submit"
           disabled={isPending || body.trim() === ""}
-          aria-label={locale === "ar" ? "إرسال" : "Send"}
+          aria-label={t("messages_thread.send_aria")}
         >
           <Send className="h-4 w-4" />
-          <span className="sr-only">{locale === "ar" ? "إرسال" : "Send"}</span>
+          <span className="sr-only">{t("messages_thread.send_aria")}</span>
         </Button>
       </form>
       {error ? (

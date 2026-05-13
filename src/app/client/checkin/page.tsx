@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getTodaysCheckin, listCheckins } from "@/lib/tracking/queries";
 import { readLocaleFromCookie } from "@/lib/i18n/locale-cookie";
+import { getT } from "@/lib/i18n/t";
 import {
   Card,
   CardContent,
@@ -24,11 +25,12 @@ export default async function ClientCheckinPage() {
     .maybeSingle()) as { data: { id: string } | null };
 
   const locale = readLocaleFromCookie();
+  const t = getT(locale);
   if (!clientRow) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>{locale === "ar" ? "التشيك إن" : "Check-in"}</CardTitle>
+          <CardTitle>{t("nav.checkin")}</CardTitle>
         </CardHeader>
       </Card>
     );
@@ -43,52 +45,46 @@ export default async function ClientCheckinPage() {
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-3xl font-bold tracking-tight">
-          {locale === "ar" ? "التشيك إن اليومي" : "Daily check-in"}
+          {t("client.checkin.title")}
         </h1>
         <p className="text-sm text-muted-foreground">
-          {locale === "ar"
-            ? "املي النموذج كل ليلة قبل النوم — كوتشك بيشوف النتايج."
-            : "Fill this in every night before bed — your coach reviews it."}
+          {t("client.checkin.description")}
         </p>
       </div>
 
-      <CheckinForm locale={locale} initial={today} />
+      <CheckinForm initial={today} />
 
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            {locale === "ar" ? "آخر ١٤ يوم" : "Last 14 days"}
+            {t("client.checkin.last_14_days")}
           </CardTitle>
           <CardDescription>
-            {locale === "ar"
-              ? "تتبع نفسك بنظرة سريعة."
-              : "A glance at your recent compliance."}
+            {t("client.checkin.last_14_days_subtitle")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {history.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              {locale === "ar" ? "مفيش بيانات لسه." : "Nothing yet."}
+              {t("client.checkin.nothing_yet")}
             </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[520px] text-xs">
                 <thead>
                   <tr className="border-b border-border/60 text-muted-foreground">
+                    <th className="py-2 pe-2 text-start">{t("common.date")}</th>
                     <th className="py-2 pe-2 text-start">
-                      {locale === "ar" ? "التاريخ" : "Date"}
-                    </th>
-                    <th className="py-2 pe-2 text-start">
-                      {locale === "ar" ? "تمرين" : "Workout"}
+                      {t("client.checkin.table_workout")}
                     </th>
                     <th className="py-2 pe-2 text-end">
-                      {locale === "ar" ? "تغذية" : "Diet"}
+                      {t("client.checkin.table_diet")}
                     </th>
                     <th className="py-2 pe-2 text-end">
-                      {locale === "ar" ? "كارديو" : "Cardio"}
+                      {t("client.checkin.table_cardio")}
                     </th>
                     <th className="py-2 pe-2 text-end">
-                      {locale === "ar" ? "نوم" : "Sleep"}
+                      {t("client.checkin.table_sleep")}
                     </th>
                   </tr>
                 </thead>

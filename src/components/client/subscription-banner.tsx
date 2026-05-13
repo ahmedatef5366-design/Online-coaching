@@ -1,5 +1,6 @@
 import { AlertTriangle, Clock, CheckCircle2, Ban } from "lucide-react";
 import type { Locale } from "@/lib/i18n/config";
+import { getT } from "@/lib/i18n/t";
 import type { SubscriptionSnapshot } from "@/lib/subscription/status";
 
 /**
@@ -14,7 +15,7 @@ export function SubscriptionBanner({
   snapshot: SubscriptionSnapshot;
   locale: Locale;
 }) {
-  const t = (en: string, ar: string) => (locale === "ar" ? ar : en);
+  const t = getT(locale);
 
   if (snapshot.status === "active") return null; // silent when healthy
 
@@ -24,16 +25,14 @@ export function SubscriptionBanner({
         <Clock className="mt-0.5 h-4 w-4 shrink-0 text-yellow-500" />
         <div className="flex-1">
           <p className="font-medium">
-            {t(
-              `Your subscription ends in ${snapshot.daysRemaining} day${snapshot.daysRemaining === 1 ? "" : "s"}.`,
-              `اشتراكك بيخلص بعد ${snapshot.daysRemaining} يوم.`,
-            )}
+            {snapshot.daysRemaining === 1
+              ? t("client.subscription.banner.ends_in_one_day")
+              : t("client.subscription.banner.ends_in_days", {
+                  days: snapshot.daysRemaining ?? 0,
+                })}
           </p>
           <p className="text-xs text-muted-foreground">
-            {t(
-              "Reach out to your coach to renew.",
-              "كلّم الكوتش عشان تجدد.",
-            )}
+            {t("client.subscription.banner.expiring_action")}
           </p>
         </div>
       </div>
@@ -46,13 +45,10 @@ export function SubscriptionBanner({
         <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
         <div className="flex-1">
           <p className="font-medium">
-            {t("Your subscription has expired.", "اشتراكك انتهى.")}
+            {t("client.subscription.banner.expired_title")}
           </p>
           <p className="text-xs text-muted-foreground">
-            {t(
-              "Contact your coach to renew and unlock your plan again.",
-              "كلّم الكوتش عشان تجدد وتفتح خطتك تاني.",
-            )}
+            {t("client.subscription.banner.expired_action")}
           </p>
         </div>
       </div>
@@ -65,10 +61,10 @@ export function SubscriptionBanner({
         <Ban className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
         <div className="flex-1">
           <p className="font-medium">
-            {t("Account suspended.", "الحساب موقوف.")}
+            {t("client.subscription.banner.suspended_title")}
           </p>
           <p className="text-xs text-muted-foreground">
-            {t("Contact your coach.", "كلّم الكوتش.")}
+            {t("client.subscription.banner.suspended_action")}
           </p>
         </div>
       </div>
@@ -81,16 +77,10 @@ export function SubscriptionBanner({
       <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
       <div className="flex-1">
         <p className="font-medium">
-          {t(
-            "No active subscription yet.",
-            "لسه مفيش اشتراك مفعّل.",
-          )}
+          {t("client.subscription.banner.none_title")}
         </p>
         <p className="text-xs text-muted-foreground">
-          {t(
-            "Once your coach confirms your payment, you'll see the end date here.",
-            "أول ما الكوتش يأكد الدفعة هيظهر هنا تاريخ الانتهاء.",
-          )}
+          {t("client.subscription.banner.none_action")}
         </p>
       </div>
     </div>
